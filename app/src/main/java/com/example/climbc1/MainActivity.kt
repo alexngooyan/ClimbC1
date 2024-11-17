@@ -1,5 +1,6 @@
 package com.example.climbc1
 
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -48,6 +49,35 @@ class MainActivity : AppCompatActivity() {
         val black1 = ContextCompat.getColor(this, R.color.black)
         val white = ContextCompat.getColor(this, R.color.white)
 
+        //get calendar date to update on timer header
+        val calendar = Calendar.getInstance()
+
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        lateinit var monthWord: String
+
+        when (month) {
+            0 -> monthWord = "January"
+            1 -> monthWord = "February"
+            2 -> monthWord = "March"
+            3 -> monthWord = "April"
+            4 -> monthWord = "May"
+            5 -> monthWord = "June"
+            6 -> monthWord = "July"
+            7 -> monthWord = "August"
+            8 -> monthWord = "September"
+            9 -> monthWord = "October"
+            10 -> monthWord = "November"
+            11 -> monthWord = "December"
+            else -> { // Note the block
+                monthWord = "wuh woh"
+            }
+        }
+
+        val dateString = "$monthWord $day, $year"
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -58,8 +88,10 @@ class MainActivity : AppCompatActivity() {
         sessionNumberText = findViewById(R.id.sessionNumberText)
         dateDisplayText = findViewById(R.id.dateDisplayText)
 
+        //init changes
         startStopButton.setBackgroundColor(teal1)
         startStopButton.setTextColor(black1)
+        dateDisplayText.text = dateString
 
         // Start button functionality
         startStopButton.setOnClickListener {

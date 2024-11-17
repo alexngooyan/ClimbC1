@@ -45,6 +45,20 @@
         app:layout_constraintTop_toTopOf="@id/A2ThresholdRectangle"
         />
 
+    <TextView
+        android:id="@+id/A2UnitsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="105dp"
+        android:fontFamily="@font/jetbrains_mono_regular"
+        android:text = "kg"
+        android:textColor="#222222"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@id/A2ThresholdRectangle"
+        app:layout_constraintTop_toTopOf="@id/A2ThresholdRectangle"
+        />
+
     <View
         android:id="@+id/A4ThresholdRectangle"
         android:layout_width="140dp"
@@ -79,6 +93,20 @@
         android:text = "81"
         android:textColor="#222222"
         android:textSize="75sp"
+        app:layout_constraintStart_toStartOf="@id/A4ThresholdRectangle"
+        app:layout_constraintTop_toTopOf="@id/A4ThresholdRectangle"
+        />
+
+    <TextView
+        android:id="@+id/A4UnitsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="105dp"
+        android:fontFamily="@font/jetbrains_mono_regular"
+        android:text = "kg"
+        android:textColor="#222222"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@id/A4ThresholdRectangle"
         app:layout_constraintTop_toTopOf="@id/A4ThresholdRectangle"
         />
@@ -121,6 +149,20 @@
         app:layout_constraintTop_toTopOf="@id/A2MaxRectangle"
         />
 
+    <TextView
+        android:id="@+id/A2MaxUnitsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="105dp"
+        android:fontFamily="@font/jetbrains_mono_regular"
+        android:text = "kg"
+        android:textColor="#222222"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@id/A2MaxRectangle"
+        app:layout_constraintTop_toTopOf="@id/A2MaxRectangle"
+        />
+
     <View
         android:id="@+id/A4MaxRectangle"
         android:layout_width="140dp"
@@ -155,6 +197,20 @@
         android:text = "73"
         android:textColor="#00FF00"
         android:textSize="75sp"
+        app:layout_constraintStart_toStartOf="@id/A4MaxRectangle"
+        app:layout_constraintTop_toTopOf="@id/A4MaxRectangle"
+        />
+
+    <TextView
+        android:id="@+id/A4MaxUnitsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="105dp"
+        android:fontFamily="@font/jetbrains_mono_regular"
+        android:text = "kg"
+        android:textColor="#222222"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@id/A4MaxRectangle"
         app:layout_constraintTop_toTopOf="@id/A4MaxRectangle"
         />
