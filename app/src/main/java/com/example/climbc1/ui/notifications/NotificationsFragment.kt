@@ -67,6 +67,11 @@ class NotificationsFragment : Fragment() {
         val a4ThresholdField1 = binding.A4ThresholdField1
         val a4ThresholdField2 = binding.A4ThresholdField2
 
+        a2ThresholdField1.setTextColor(teal1)
+        a2ThresholdField2.setTextColor(teal1)
+        a4ThresholdField1.setTextColor(teal1)
+        a4ThresholdField2.setTextColor(teal1)
+
         updateButton.setOnClickListener {
             // Get the text from each field
             val a2Threshold1Temp = binding.A2ThresholdField1.text.toString()
