@@ -50,6 +50,20 @@
         app:layout_constraintStart_toStartOf="@id/A2SettingsRectangle"
         app:layout_constraintTop_toTopOf="@id/A2SettingsRectangle" />
 
+    <EditText
+        android:id="@+id/A2ThresholdField1"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/jetbrains_mono_regular"
+        android:textColorHint="@color/white"
+        android:hint="--"
+        android:inputType="number"
+        android:textSize="50dp"
+        app:layout_constraintStart_toStartOf="@id/A2Threshold1Rectangle"
+        app:layout_constraintTop_toTopOf="@id/A2Threshold1Rectangle" />
+
     <View
         android:id="@+id/A2Threshold2Rectangle"
         android:layout_width="90dp"
@@ -59,6 +73,20 @@
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toEndOf="@id/A2Threshold1Rectangle"
         app:layout_constraintTop_toTopOf="@id/A2SettingsRectangle" />
+
+    <EditText
+        android:id="@+id/A2ThresholdField2"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/jetbrains_mono_regular"
+        android:textColorHint="@color/white"
+        android:hint="--"
+        android:inputType="number"
+        android:textSize="50dp"
+        app:layout_constraintStart_toStartOf="@id/A2Threshold2Rectangle"
+        app:layout_constraintTop_toTopOf="@id/A2Threshold2Rectangle" />
 
     <TextView
         android:id="@+id/A2UnitsText"
@@ -108,6 +136,20 @@
         app:layout_constraintStart_toStartOf="@id/A4SettingsRectangle"
         app:layout_constraintTop_toTopOf="@id/A4SettingsRectangle" />
 
+    <EditText
+        android:id="@+id/A4ThresholdField1"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/jetbrains_mono_regular"
+        android:textColorHint="@color/white"
+        android:hint="--"
+        android:inputType="number"
+        android:textSize="50dp"
+        app:layout_constraintStart_toStartOf="@id/A4Threshold1Rectangle"
+        app:layout_constraintTop_toTopOf="@id/A4Threshold1Rectangle" />
+
     <View
         android:id="@+id/A4Threshold2Rectangle"
         android:layout_width="90dp"
@@ -117,6 +159,20 @@
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toEndOf="@id/A4Threshold1Rectangle"
         app:layout_constraintTop_toTopOf="@id/A4SettingsRectangle" />
+
+    <EditText
+        android:id="@+id/A4ThresholdField2"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/jetbrains_mono_regular"
+        android:textColorHint="@color/white"
+        android:hint="--"
+        android:inputType="number"
+        android:textSize="50dp"
+        app:layout_constraintStart_toStartOf="@id/A4Threshold2Rectangle"
+        app:layout_constraintTop_toTopOf="@id/A4Threshold2Rectangle" />
 
     <Button
         android:id="@+id/thresholdUpdateButton"

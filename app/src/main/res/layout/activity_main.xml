@@ -10,7 +10,7 @@
         android:id="@+id/overallBackground"
         android:layout_width="413dp"
         android:layout_height="800dp"
-        android:background="@color/orange2"
+        android:background="@color/background"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
