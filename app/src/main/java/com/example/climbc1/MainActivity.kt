@@ -196,12 +196,15 @@ class MainActivity : AppCompatActivity() {
                         .start()
 
                     resetTimer()
+                    startStopButton.text = "Stop"
+
 
                 }
 
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(17900L) // Delay in milliseconds
                     startTimer()
+
                 }
 
                 timerBg.setBackgroundColor(teal1)
