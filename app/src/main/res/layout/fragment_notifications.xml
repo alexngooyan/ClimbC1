@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".ui.notifications.NotificationsFragment">
 
+
+
     <View
         android:id="@+id/settingsTextRectangle"
         android:layout_width="310dp"
@@ -185,11 +187,22 @@
         android:width="124dp"
         android:textSize="18sp"
         android:layout_marginStart="120dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/A4SettingsRectangle" />
 
 
-
+    <ImageButton
+        android:id="@+id/helpButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/questionnaire"
+        android:contentDescription="Symbol Button"
+        android:background="?android:attr/selectableItemBackground"
+        android:layout_marginStart="310dp"
+        android:layout_marginTop="45dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/A4SettingsRectangle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

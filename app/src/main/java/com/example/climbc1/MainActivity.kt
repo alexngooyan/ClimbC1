@@ -129,6 +129,8 @@ class MainActivity : AppCompatActivity() {
             } else { //start timer and startup sequence
                 resetTimer()
 
+                startStopButton.isEnabled = false
+                startStopButton.isClickable = false
                 binding.transitionBg.visibility = View.VISIBLE
 
                 val bluetoothScreen: ConstraintLayout = binding.bluetoothLoadingScreen
@@ -204,6 +206,9 @@ class MainActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(17900L) // Delay in milliseconds
                     startTimer()
+
+                    startStopButton.isEnabled = true
+                    startStopButton.isClickable = true
 
                 }
 
