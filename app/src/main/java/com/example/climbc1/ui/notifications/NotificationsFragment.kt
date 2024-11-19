@@ -1,19 +1,23 @@
 package com.example.climbc1.ui.notifications
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.climbc1.R
 import com.example.climbc1.databinding.FragmentNotificationsBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 
 class NotificationsFragment : Fragment() {
 
@@ -111,7 +115,35 @@ class NotificationsFragment : Fragment() {
             a4ThresholdField1.setText("")
             a4ThresholdField2.setText("")
 
+            binding.settingsTitleText.text = "Update Successful"
+            binding.settingsTextRectangle.setBackgroundColor(black2)
+            binding.settingsTitleText.setTextColor(teal1)
+
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(2000L) // Delay in milliseconds
+                binding.settingsTitleText.text = "Threshold Settings"
+                binding.settingsTextRectangle.setBackgroundColor(white)
+                binding.settingsTitleText.setTextColor(black1)
+            }
+
         }
+
+
+
+//        updateButton.setOnClickListener {
+//            // Change the text immediately
+//            binding.settingsTitleText.text = "Update Succeeded"
+//            binding.settingsTextRectangle.setBackgroundColor(black2)
+//            binding.settingsTitleText.setTextColor(teal1)
+//
+//            // Use a Handler to revert back after 3 seconds (3000 milliseconds)
+//            Handler().postDelayed({
+//                // Revert the text back to its original state
+//                binding.settingsTitleText.text = "Threshold Settings"
+//                binding.settingsTextRectangle.setBackgroundColor(white)
+//                binding.settingsTitleText.setTextColor(black2)
+//            }, 3000)  // 3000 milliseconds = 3 seconds
+//        }
 
         return root
     }
