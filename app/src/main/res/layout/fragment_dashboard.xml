@@ -15,7 +15,8 @@
         android:layout_marginTop="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="Container for charts">
+        android:contentDescription="Container for charts"
+        android:visibility="visible">
 
         <!-- Container layout for all your views -->
         <LinearLayout
@@ -156,17 +157,309 @@
                 />
             </FrameLayout>
 <!--            cheese spacer so you can see all charts-->
-            <View
-                android:id="@+id/bottomSpacer"
+            <FrameLayout
+                android:id="@+id/sessionHistoryButtonContainer"
+                android:layout_width="310dp"
+                android:layout_height="240dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="10dp"
+                android:elevation="2dp"
+                >
+
+                <Button
+                    android:id="@+id/sessionHistoryButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:text="Session History"
+                    android:height="80dp"
+                    android:width="124dp"
+                    android:textSize="15sp"
+                    android:backgroundTint="@color/teal1"
+                    android:textColor="@color/black"
+                    android:layout_marginStart="95dp"
+                    android:layout_marginTop="30dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/TempRectangle4" />
+            </FrameLayout>
+
+
+        </LinearLayout>
+
+    </android.widget.ScrollView>
+
+    <android.widget.ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="1dp"
+        android:id="@+id/sessionHistory"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="Container for session history buttons"
+        android:visibility="gone"
+        >
+
+        <!-- Container layout for all your views -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <FrameLayout
+                android:id="@+id/TempSession1"
                 android:layout_width="310dp"
                 android:layout_height="140dp"
-                android:background="#FFFFFF"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="240dp"
+                android:elevation="2dp"
+                >
+
+                <TextView
+                    android:id="@+id/sessionNum1"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:text="SESSION 1"
+                    android:textColor="@color/black"
+                    android:background="@color/white"
+                    android:textSize="40sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_gravity="top"
+                    />
+
+                <TextView
+                    android:id="@+id/sessionDate1"
+                    android:layout_width="155dp"
+                    android:layout_height="70dp"
+                    android:text="11/19/24"
+                    android:textColor="@color/white"
+                    android:background="@color/black2"
+                    android:textSize="25sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    />
+
+                <TextView
+                    android:id="@+id/sessionTime1"
+                    android:layout_width="155dp"
+                    android:layout_height="70dp"
+                    android:text="00:28:35"
+                    android:textColor="@color/black"
+                    android:background="@color/teal1"
+                    android:textSize="25sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_marginStart="155dp"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    />
+
+            </FrameLayout>
+
+
+
+            <FrameLayout
+                android:id="@+id/TempSession2"
+                android:layout_width="310dp"
+                android:layout_height="140dp"
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="50dp"
                 android:elevation="2dp"
-                android:visibility="invisible"
-                app:layout_constraintStart_toStartOf="parent"
-                 />
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/sessionNum2"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:text="SESSION 2"
+                    android:textColor="@color/black"
+                    android:background="@color/white"
+                    android:textSize="40sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_gravity="top"
+                    />
+
+                <TextView
+                    android:id="@+id/sessionDate2"
+                    android:layout_width="155dp"
+                    android:layout_height="70dp"
+                    android:text="11/20/24"
+                    android:textColor="@color/white"
+                    android:background="@color/black2"
+                    android:textSize="25sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    />
+
+                <TextView
+                    android:id="@+id/sessionTime2"
+                    android:layout_width="155dp"
+                    android:layout_height="70dp"
+                    android:text="00:11:35"
+                    android:textColor="@color/black"
+                    android:background="@color/teal1"
+                    android:textSize="25sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_marginStart="155dp"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/TempSession3"
+                android:layout_width="310dp"
+                android:layout_height="140dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="50dp"
+                android:elevation="2dp"
+                >
+                <TextView
+                    android:id="@+id/sessionNum3"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:text="SESSION 3"
+                    android:textColor="@color/black"
+                    android:background="@color/white"
+                    android:textSize="40sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_gravity="top"
+                    />
+
+                <TextView
+                    android:id="@+id/sessionDate3"
+                    android:layout_width="155dp"
+                    android:layout_height="70dp"
+                    android:text="11/22/24"
+                    android:textColor="@color/white"
+                    android:background="@color/black2"
+                    android:textSize="25sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    />
+
+                <TextView
+                    android:id="@+id/sessionTime3"
+                    android:layout_width="155dp"
+                    android:layout_height="70dp"
+                    android:text="01:03:46"
+                    android:textColor="@color/black"
+                    android:background="@color/teal1"
+                    android:textSize="25sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_marginStart="155dp"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/TempSession4"
+                android:layout_width="310dp"
+                android:layout_height="140dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="50dp"
+                android:elevation="2dp"
+                >
+
+                <TextView
+                    android:id="@+id/sessionNum4"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:text="SESSION 4"
+                    android:background="@color/white"
+                    android:textColor="@color/black"
+                    android:textSize="40sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_gravity="top"
+                    />
+
+                <TextView
+                    android:id="@+id/sessionDate4"
+                    android:layout_width="155dp"
+                    android:layout_height="70dp"
+                    android:text="11/23/24"
+                    android:textColor="@color/white"
+                    android:background="@color/black2"
+                    android:textSize="25sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    />
+
+                <TextView
+                    android:id="@+id/sessionTime4"
+                    android:layout_width="155dp"
+                    android:layout_height="70dp"
+                    android:text="00:47:32"
+                    android:textColor="@color/black"
+                    android:background="@color/teal1"
+                    android:textSize="25sp"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:gravity="center"
+                    android:layout_marginStart="155dp"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    />
+            </FrameLayout>
+            <!--            cheese spacer so you can see all charts-->
+            <FrameLayout
+                android:id="@+id/tempButtonContainer"
+                android:layout_width="310dp"
+                android:layout_height="240dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="10dp"
+                android:elevation="2dp"
+                >
+
+                <Button
+                    android:id="@+id/selectButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/jetbrains_mono_regular"
+                    android:text="Select"
+                    android:height="80dp"
+                    android:width="124dp"
+                    android:textSize="22sp"
+                    android:backgroundTint="@color/teal1"
+                    android:textColor="@color/black"
+                    android:layout_marginStart="95dp"
+                    android:layout_marginTop="25dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent" />
+            </FrameLayout>
 
 
         </LinearLayout>
