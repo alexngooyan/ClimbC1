@@ -120,7 +120,7 @@ class NotificationsFragment : Fragment() {
             binding.settingsTitleText.setTextColor(teal1)
 
             CoroutineScope(Dispatchers.Main).launch {
-                delay(2000L) // Delay in milliseconds
+                delay(750L) // Delay in milliseconds
                 binding.settingsTitleText.text = "Threshold Settings"
                 binding.settingsTextRectangle.setBackgroundColor(white)
                 binding.settingsTitleText.setTextColor(black1)
