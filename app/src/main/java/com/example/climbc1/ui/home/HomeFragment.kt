@@ -32,7 +32,7 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         val sharedPref = requireContext().getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
+        //val editor = sharedPref.edit()
 
         val a2Threshold1 = sharedPref.getString("a2Threshold1", "--")
         val a2Threshold2 = sharedPref.getString("a2Threshold2", "--")

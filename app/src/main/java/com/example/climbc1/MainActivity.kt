@@ -213,7 +213,7 @@ class MainActivity : AppCompatActivity() {
                 timerDisplayText.setTextColor(black1)
                 sessionNumberText.setTextColor(black1)
                 dateDisplayText.setTextColor(black1)
-                startStopButton.text = "Stop"
+                //startStopButton.text = "Stop"
             }
         }
 

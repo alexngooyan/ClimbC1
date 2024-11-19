@@ -12,7 +12,7 @@
         android:layout_width="412dp"
         android:layout_height="799dp"
         android:background="@color/orange1"
-        android:elevation="9dp"
+        android:elevation="19dp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,7 +23,7 @@
         android:id="@+id/bluetoothLoadingScreen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation = "10dp"
+        android:elevation = "20dp"
         android:layout_marginTop = "0dp"
         android:layout_marginLeft = "0dp"
         android:visibility="gone"
@@ -103,7 +103,7 @@
         android:id="@+id/calibrationScreen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation = "11dp"
+        android:elevation = "30dp"
         android:visibility="gone"
         android:layout_marginTop = "0dp"
         android:layout_marginLeft = "0dp"
@@ -192,14 +192,17 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <View
-        android:id="@+id/overallBackground"
-        android:layout_width="413dp"
-        android:layout_height="800dp"
-        android:background="@color/background"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/Timer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation = "15dp"
+        android:layout_marginTop = "0dp"
+        android:layout_marginLeft = "0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteY="1dp" />
+        >
+
 
     <View
         android:id="@+id/rectangle"
@@ -260,6 +263,41 @@
         android:textColor="#000000"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/overallBackground"
+        android:layout_width="413dp"
+        android:layout_height="800dp"
+        android:background="@color/background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteY="1dp" />
+
+    <ImageView
+        android:id="@+id/leftBgTriangle"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/left_triangle"
+        android:elevation="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="130dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/rightBgTriangle"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/right_triangle"
+        android:elevation="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="250dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         />
 

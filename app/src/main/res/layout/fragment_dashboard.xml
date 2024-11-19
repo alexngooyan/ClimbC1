@@ -6,24 +6,172 @@
     android:layout_height="match_parent"
     tools:context=".ui.dashboard.DashboardFragment">
 
-    <View
-        android:id="@+id/TempRectangle"
-        android:layout_width="310dp"
-        android:layout_height="140dp"
-        android:background="#FFFFFF"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="240dp"
+    <android.widget.ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="1dp"
+        android:id="@+id/scrollableCharts"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="Container for charts">
 
-    <View
-        android:id="@+id/TempRectangle2"
-        android:layout_width="310dp"
-        android:layout_height="140dp"
-        android:background="#FFFFFF"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="45dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/TempRectangle" />
+        <!-- Container layout for all your views -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <FrameLayout
+                android:id="@+id/TempRectangle1"
+                android:layout_width="310dp"
+                android:layout_height="140dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="240dp"
+                android:elevation="2dp"
+                android:background="#222222"
+                >
+
+                <!-- ImageView inside the rectangle -->
+                <ImageView
+                    android:id="@+id/ollie1"
+                    android:layout_width="150dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:elevation="1dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/oliver" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="35sp"
+                    android:elevation="0dp"
+                    android:textColor="@color/orange1"
+                    android:text="chart?chart?chart?chart?chart?chart?chart?chart?chart?"
+                    />
+            </FrameLayout>
+
+
+
+            <FrameLayout
+                android:id="@+id/TempRectangle2"
+                android:layout_width="310dp"
+                android:layout_height="140dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="50dp"
+                android:elevation="2dp"
+                android:background="#222222">
+
+                <!-- ImageView inside the rectangle -->
+                <ImageView
+                    android:id="@+id/ollie2"
+                    android:layout_width="150dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:elevation="1dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/oliver" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="35sp"
+                    android:elevation="0dp"
+                    android:textColor="@color/teal1"
+                    android:text="chart?chart?chart?chart?chart?chart?chart?chart?chart?"
+                    />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/TempRectangle3"
+                android:layout_width="310dp"
+                android:layout_height="140dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="50dp"
+                android:elevation="2dp"
+                android:background="#222222"
+                >
+
+                <!-- ImageView inside the rectangle -->
+                <ImageView
+                    android:id="@+id/ollie3"
+                    android:layout_width="150dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:elevation="1dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/oliver" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="35sp"
+                    android:elevation="0dp"
+                    android:textColor="@color/white"
+                    android:text="chart?chart?chart?chart?chart?chart?chart?chart?chart?"
+                    />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/TempRectangle4"
+                android:layout_width="310dp"
+                android:layout_height="140dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="50dp"
+                android:elevation="2dp"
+                android:background="#222222"
+                >
+
+                <!-- ImageView inside the rectangle -->
+                <ImageView
+                    android:id="@+id/ollie4"
+                    android:layout_width="150dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:elevation="1dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/oliver" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="35sp"
+                    android:elevation="0dp"
+                    android:textColor="@color/orange1"
+                    android:text="chart?chart?chart?chart?chart?chart?chart?chart?chart?"
+                />
+            </FrameLayout>
+<!--            cheese spacer so you can see all charts-->
+            <View
+                android:id="@+id/bottomSpacer"
+                android:layout_width="310dp"
+                android:layout_height="140dp"
+                android:background="#FFFFFF"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="50dp"
+                android:elevation="2dp"
+                android:visibility="invisible"
+                app:layout_constraintStart_toStartOf="parent"
+                 />
+
+
+        </LinearLayout>
+
+    </android.widget.ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
