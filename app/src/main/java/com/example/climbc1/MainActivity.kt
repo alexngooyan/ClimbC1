@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModel
@@ -19,6 +20,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.climbc1.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.logging.Handler
 
 class MainActivity : AppCompatActivity() {
@@ -41,6 +46,16 @@ class MainActivity : AppCompatActivity() {
             if (clockRunning) {
                 timeElapsed++
                 updateStopwatchDisplay()
+                handler.postDelayed(this, 1000)  // Update every 1 second
+            }
+        }
+    }
+
+    val updateCalibrationTimerRunnable = object : Runnable {
+        override fun run() {
+            if (clockRunning) {
+                timeElapsed++
+                updateCalibrationDisplay()
                 handler.postDelayed(this, 1000)  // Update every 1 second
             }
         }
@@ -100,6 +115,7 @@ class MainActivity : AppCompatActivity() {
 
         // Start button functionality
         startStopButton.setOnClickListener {
+
             if (clockRunning) { //stop timer
                 stopTimer()
                 timerBg.setBackgroundColor(black2)
@@ -110,9 +126,84 @@ class MainActivity : AppCompatActivity() {
                 dateDisplayText.setTextColor(white)
                 startStopButton.text = "Start"
 
-            } else { //start timer
+            } else { //start timer and startup sequence
                 resetTimer()
-                startTimer()
+
+                binding.transitionBg.visibility = View.VISIBLE
+
+                val bluetoothScreen: ConstraintLayout = binding.bluetoothLoadingScreen
+                bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
+                bluetoothScreen.visibility = View.VISIBLE
+
+                bluetoothScreen.animate()
+                    .alpha(1f)  // Fade to fully visible
+                    .setDuration(1000)  // Set the duration of the fade
+                    .start()
+
+                // bluetooth screen goes away
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(5500L) // Delay in milliseconds
+
+                    bluetoothScreen.animate()
+                        .alpha(0f)  // Fade to fully invisible
+                        .setDuration(1000)  // Set the duration of the fade
+                        .withEndAction {
+                            bluetoothScreen.visibility = View.GONE  // After fading, set visibility to gone
+                        }
+                        .start()
+
+                }
+
+                //calibration starts
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(6600L) // Delay in milliseconds
+                    val calibrationScreen: ConstraintLayout = binding.calibrationScreen
+                    calibrationScreen.alpha = 0f  // Make sure the view starts invisible
+                    calibrationScreen.visibility = View.VISIBLE
+
+                    calibrationScreen.animate()
+                        .alpha(1f)  // Fade to fully visible
+                        .setDuration(1000)  // Set the duration of the fade
+                        .start()
+                }
+
+                //calibration starts
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(6700L) // Delay in milliseconds
+                    startCalibrationTimer()
+                }
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(16800L) // Delay in milliseconds
+                    stopCalibrationTimer()
+                }
+
+
+
+                //calibration ends
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(16900L) // Delay in milliseconds
+
+                    binding.transitionBg.visibility = View.GONE
+
+                    val calibrationScreen: ConstraintLayout = binding.calibrationScreen
+                    calibrationScreen.animate()
+                        .alpha(0f)  // Fade to fully invisible
+                        .setDuration(1000)  // Set the duration of the fade
+                        .withEndAction {
+                            calibrationScreen.visibility = View.GONE  // After fading, set visibility to gone
+                        }
+                        .start()
+
+                    resetTimer()
+
+                }
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(17900L) // Delay in milliseconds
+                    startTimer()
+                }
+
                 timerBg.setBackgroundColor(teal1)
                 startStopButton.setBackgroundColor(black1)
                 startStopButton.setTextColor(teal1)
@@ -151,6 +242,17 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacks(updateTimeRunnable)  // Stop updating the time
     }
 
+    private fun startCalibrationTimer() {
+        clockRunning = true
+        handler.post(updateCalibrationTimerRunnable)  // Start updating the time
+    }
+
+    private fun stopCalibrationTimer() {
+        clockRunning = false
+        handler.removeCallbacks(updateCalibrationTimerRunnable)  // Stop updating the time
+    }
+
+
     private fun resetTimer() {
         timeElapsed = 0
         updateStopwatchDisplay()
@@ -166,5 +268,11 @@ class MainActivity : AppCompatActivity() {
         val seconds = timeElapsed % 60
         val timeText = String.format("%02d:%02d:%02d", hours, minutes, seconds)
         timerDisplay.text = timeText
+    }
+
+    fun updateCalibrationDisplay() {
+        val secondsLeft = 11-timeElapsed //cheese to make sure 10 shows up
+        val timeLeft = String.format("%02d", secondsLeft)
+        binding.calibrationTimerText.text = timeLeft
     }
 }

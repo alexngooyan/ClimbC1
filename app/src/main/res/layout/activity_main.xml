@@ -6,6 +6,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!--    for smooth transition in start sequence-->
+    <View
+        android:id="@+id/transitionBg"
+        android:layout_width="412dp"
+        android:layout_height="799dp"
+        android:background="@color/orange1"
+        android:elevation="9dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
     <!-- for use to make bluetooth connecting screen visible/gone as well as calibration sequence screen -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bluetoothLoadingScreen"
