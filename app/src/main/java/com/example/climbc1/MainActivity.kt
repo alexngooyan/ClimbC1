@@ -147,6 +147,8 @@ class MainActivity : AppCompatActivity() {
         sessionNumberText = findViewById(R.id.sessionNumberText)
         dateDisplayText = findViewById(R.id.dateDisplayText)
 
+        sessionNumberText.text = "Session $dummyWorkoutID"
+
         //init changes
         startStopButton.setBackgroundColor(teal1)
         startStopButton.setTextColor(black1)
@@ -154,139 +156,140 @@ class MainActivity : AppCompatActivity() {
 
         // Start button functionality
         startStopButton.setOnClickListener {
+            if (!isDatabaseSync) {
+                if (clockRunning) { //stop timer
+                    stopTimer()
+                    timerBg.setBackgroundColor(black2)
+                    startStopButton.setBackgroundColor(teal1)
+                    startStopButton.setTextColor(black1)
+                    timerDisplayText.setTextColor(white)
+                    sessionNumberText.setTextColor(white)
+                    dateDisplayText.setTextColor(white)
+                    startStopButton.text = "Loading..."
 
-            if (clockRunning) { //stop timer
-                stopTimer()
-                timerBg.setBackgroundColor(black2)
-                startStopButton.setBackgroundColor(teal1)
-                startStopButton.setTextColor(black1)
-                timerDisplayText.setTextColor(white)
-                sessionNumberText.setTextColor(white)
-                dateDisplayText.setTextColor(white)
-                startStopButton.text = "Loading..."
-
-                //Stop ESP control
-                sendToESP("STOP")
-                dataReceiver()
+                    //Stop ESP control
+                    sendToESP("STOP")
+                    dataReceiver()
 
 
-            } else { //start timer and startup sequence
-                resetTimer()
+                } else { //start timer and startup sequence
+                    resetTimer()
 
-                startStopButton.isEnabled = false
-                startStopButton.isClickable = false
-                binding.transitionBg.visibility = View.VISIBLE
+                    startStopButton.isEnabled = false
+                    startStopButton.isClickable = false
+                    binding.transitionBg.visibility = View.VISIBLE
 
-                val bluetoothScreen: ConstraintLayout = binding.bluetoothLoadingScreen
-                bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
-                bluetoothScreen.visibility = View.VISIBLE
-
-                bluetoothScreen.animate()
-                    .alpha(1f)  // Fade to fully visible
-                    .setDuration(1000)  // Set the duration of the fade
-                    .start()
-
-                var bluetoothConnected = false
-
-                // bluetooth screen goes away
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(1000L) // Delay in milliseconds
-                    while(!bluetoothConnected) {
-                        delay(50L)
-                    }
+                    val bluetoothScreen: ConstraintLayout = binding.bluetoothLoadingScreen
+                    bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
+                    bluetoothScreen.visibility = View.VISIBLE
 
                     bluetoothScreen.animate()
-                        .alpha(0f)  // Fade to fully invisible
-                        .setDuration(1000)  // Set the duration of the fade
-                        .withEndAction {
-                            bluetoothScreen.visibility = View.GONE  // After fading, set visibility to gone
-                        }
-                        .start()
-
-                }
-
-                // Try to connect to device "CLIMB_Device"
-                CoroutineScope(Dispatchers.Main).launch {
-                    if (bluetoothSocket == null || outputStream == null || inputStream == null) {
-                        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-                        val esp32Device = pairedDevices?.find { it.name == "CLIMB_Device" }
-                        val uuid =
-                            UUID.fromString("00001101-0000-1000-8000-00805F9B34FB") // Standard UUID for serial
-                        bluetoothSocket = esp32Device?.createRfcommSocketToServiceRecord(uuid)
-                        bluetoothSocket?.connect()
-                        outputStream = bluetoothSocket?.outputStream
-                        inputStream = bluetoothSocket?.inputStream
-                    }
-                    bluetoothConnected = true
-                }
-
-                //calibration starts
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(6600L) // Delay in milliseconds
-                    val calibrationScreen: ConstraintLayout = binding.calibrationScreen
-                    calibrationScreen.alpha = 0f  // Make sure the view starts invisible
-                    calibrationScreen.visibility = View.VISIBLE
-
-                    calibrationScreen.animate()
                         .alpha(1f)  // Fade to fully visible
                         .setDuration(1000)  // Set the duration of the fade
                         .start()
-                }
 
-                //calibration starts
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(6700L) // Delay in milliseconds
-                    startCalibrationTimer()
-                }
+                    var bluetoothConnected = false
 
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(16800L) // Delay in milliseconds
-                    stopCalibrationTimer()
-                }
-
-
-
-                //calibration ends
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(16900L) // Delay in milliseconds
-
-                    binding.transitionBg.visibility = View.GONE
-
-                    val calibrationScreen: ConstraintLayout = binding.calibrationScreen
-                    calibrationScreen.animate()
-                        .alpha(0f)  // Fade to fully invisible
-                        .setDuration(1000)  // Set the duration of the fade
-                        .withEndAction {
-                            calibrationScreen.visibility = View.GONE  // After fading, set visibility to gone
+                    // bluetooth screen goes away
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(1000L) // Delay in milliseconds
+                        while(!bluetoothConnected) {
+                            delay(50L)
                         }
-                        .start()
 
-                    resetTimer()
-                    startStopButton.text = "Stop"
+                        bluetoothScreen.animate()
+                            .alpha(0f)  // Fade to fully invisible
+                            .setDuration(1000)  // Set the duration of the fade
+                            .withEndAction {
+                                bluetoothScreen.visibility = View.GONE  // After fading, set visibility to gone
+                            }
+                            .start()
 
-                    // Send signal to ESP to begin data send process.
-                    sendToESP("START")
-                    lastUnixTimeSinceStart = System.currentTimeMillis()
+                    }
+
+                    // Try to connect to device "CLIMB_Device"
+                    CoroutineScope(Dispatchers.Main).launch {
+                        if (bluetoothSocket == null || outputStream == null || inputStream == null) {
+                            val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+                            val esp32Device = pairedDevices?.find { it.name == "CLIMB_Device" }
+                            val uuid =
+                                UUID.fromString("00001101-0000-1000-8000-00805F9B34FB") // Standard UUID for serial
+                            bluetoothSocket = esp32Device?.createRfcommSocketToServiceRecord(uuid)
+                            bluetoothSocket?.connect()
+                            outputStream = bluetoothSocket?.outputStream
+                            inputStream = bluetoothSocket?.inputStream
+                        }
+                        bluetoothConnected = true
+                    }
+
+                    //calibration starts
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(6600L) // Delay in milliseconds
+                        val calibrationScreen: ConstraintLayout = binding.calibrationScreen
+                        calibrationScreen.alpha = 0f  // Make sure the view starts invisible
+                        calibrationScreen.visibility = View.VISIBLE
+
+                        calibrationScreen.animate()
+                            .alpha(1f)  // Fade to fully visible
+                            .setDuration(1000)  // Set the duration of the fade
+                            .start()
+                    }
+
+                    //calibration starts
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(6700L) // Delay in milliseconds
+                        startCalibrationTimer()
+                    }
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(16800L) // Delay in milliseconds
+                        stopCalibrationTimer()
+                    }
 
 
+
+                    //calibration ends
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(16900L) // Delay in milliseconds
+
+                        binding.transitionBg.visibility = View.GONE
+
+                        val calibrationScreen: ConstraintLayout = binding.calibrationScreen
+                        calibrationScreen.animate()
+                            .alpha(0f)  // Fade to fully invisible
+                            .setDuration(1000)  // Set the duration of the fade
+                            .withEndAction {
+                                calibrationScreen.visibility = View.GONE  // After fading, set visibility to gone
+                            }
+                            .start()
+
+                        resetTimer()
+                        startStopButton.text = "Stop"
+
+                        // Send signal to ESP to begin data send process.
+                        sendToESP("START")
+                        lastUnixTimeSinceStart = System.currentTimeMillis()
+
+
+                    }
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(17900L) // Delay in milliseconds
+                        startTimer()
+
+                        startStopButton.isEnabled = true
+                        startStopButton.isClickable = true
+
+                    }
+
+                    timerBg.setBackgroundColor(teal1)
+                    startStopButton.setBackgroundColor(black1)
+                    startStopButton.setTextColor(teal1)
+                    timerDisplayText.setTextColor(black1)
+                    sessionNumberText.setTextColor(black1)
+                    dateDisplayText.setTextColor(black1)
+                    //startStopButton.text = "Stop"
                 }
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(17900L) // Delay in milliseconds
-                    startTimer()
-
-                    startStopButton.isEnabled = true
-                    startStopButton.isClickable = true
-
-                }
-
-                timerBg.setBackgroundColor(teal1)
-                startStopButton.setBackgroundColor(black1)
-                startStopButton.setTextColor(teal1)
-                timerDisplayText.setTextColor(black1)
-                sessionNumberText.setTextColor(black1)
-                dateDisplayText.setTextColor(black1)
-                //startStopButton.text = "Stop"
             }
         }
 
@@ -388,6 +391,7 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread {
                     dummyWorkoutID++
                     startStopButton.text = "Start"
+                    sessionNumberText.text = "Session $dummyWorkoutID"
                     isDatabaseSync = false
                 }
             } catch(e: Exception) {
