@@ -1,6 +1,13 @@
 package com.example.climbc1
 
+import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothSocket
 import android.content.ClipData
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.icu.util.Calendar
 import android.media.RouteListingPreference
@@ -12,9 +19,11 @@ import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -24,11 +33,29 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStream
+import java.util.UUID
 import java.util.logging.Handler
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var db: WorkoutDataDatabase
+
+    // Bluetooth Variables
+    private lateinit var bluetoothManager: BluetoothManager
+    private var bluetoothAdapter: BluetoothAdapter? = null
+    private var bluetoothSocket: BluetoothSocket? = null
+    private var outputStream: OutputStream? = null
+    private var inputStream: InputStream? = null
+
+    private var isDatabaseSync: Boolean = false
+    private var lastUnixTimeSinceStart: Long = 0
+    private var dummyWorkoutID = 0
 
     lateinit var timerDisplay: TextView
     lateinit var startStopButton: Button
@@ -63,6 +90,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //init bluetooth relevant modules.
+        bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothAdapter = bluetoothManager.adapter
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return // ALEX, change this to prompt for permission instead of crashing
+        }
 
         val teal1 = ContextCompat.getColor(this, R.color.teal1)
         val black2 = ContextCompat.getColor(this, R.color.black2)
@@ -124,7 +163,12 @@ class MainActivity : AppCompatActivity() {
                 timerDisplayText.setTextColor(white)
                 sessionNumberText.setTextColor(white)
                 dateDisplayText.setTextColor(white)
-                startStopButton.text = "Start"
+                startStopButton.text = "Loading..."
+
+                //Stop ESP control
+                sendToESP("STOP")
+                dataReceiver()
+
 
             } else { //start timer and startup sequence
                 resetTimer()
@@ -142,9 +186,14 @@ class MainActivity : AppCompatActivity() {
                     .setDuration(1000)  // Set the duration of the fade
                     .start()
 
+                var bluetoothConnected = false
+
                 // bluetooth screen goes away
                 CoroutineScope(Dispatchers.Main).launch {
-                    delay(5500L) // Delay in milliseconds
+                    delay(1000L) // Delay in milliseconds
+                    while(!bluetoothConnected) {
+                        delay(50L)
+                    }
 
                     bluetoothScreen.animate()
                         .alpha(0f)  // Fade to fully invisible
@@ -154,6 +203,21 @@ class MainActivity : AppCompatActivity() {
                         }
                         .start()
 
+                }
+
+                // Try to connect to device "CLIMB_Device"
+                CoroutineScope(Dispatchers.Main).launch {
+                    if (bluetoothSocket == null || outputStream == null || inputStream == null) {
+                        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+                        val esp32Device = pairedDevices?.find { it.name == "CLIMB_Device" }
+                        val uuid =
+                            UUID.fromString("00001101-0000-1000-8000-00805F9B34FB") // Standard UUID for serial
+                        bluetoothSocket = esp32Device?.createRfcommSocketToServiceRecord(uuid)
+                        bluetoothSocket?.connect()
+                        outputStream = bluetoothSocket?.outputStream
+                        inputStream = bluetoothSocket?.inputStream
+                    }
+                    bluetoothConnected = true
                 }
 
                 //calibration starts
@@ -200,6 +264,10 @@ class MainActivity : AppCompatActivity() {
                     resetTimer()
                     startStopButton.text = "Stop"
 
+                    // Send signal to ESP to begin data send process.
+                    sendToESP("START")
+                    lastUnixTimeSinceStart = System.currentTimeMillis()
+
 
                 }
 
@@ -238,6 +306,12 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        db = WorkoutDataDatabase.getDatabase(this)
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     private fun startTimer() {
@@ -267,6 +341,60 @@ class MainActivity : AppCompatActivity() {
         if (!clockRunning) {
             startStopButton.text = "Start"
         }
+    }
+
+    // Send a string to the ESP via the bluetooth output buffer.
+    private fun sendToESP(item: String) {
+        try {
+            outputStream?.write(item.toByteArray())
+        } catch (e: Exception) {
+            return // maybe deal with error eventually. but for now, don't do anything
+        }
+    }
+
+    private fun dataReceiver() {
+        Thread {
+            try {
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                var delta: Long = 0
+                while (true) {
+                    isDatabaseSync = true
+                    val line = reader.readLine() ?: break
+
+                    if (line == "EOF") {
+                        break
+                    }
+                    val values = line.split(":").map { it.toInt() }
+                    val pointer = values[0]
+                    val middle = values[1]
+                    val ring = values[2]
+                    val pinky = values[3]
+                    val entry0 = WorkoutData(lastUnixTimeSinceStart+delta,pointer,dummyWorkoutID,0, null)
+                    val entry1 = WorkoutData(lastUnixTimeSinceStart+delta,middle,dummyWorkoutID,1, null)
+                    val entry2 = WorkoutData(lastUnixTimeSinceStart+delta,ring,dummyWorkoutID,2, null)
+                    val entry3 = WorkoutData(lastUnixTimeSinceStart+delta,pinky,dummyWorkoutID,3, null)
+
+                    lifecycleScope.launch() {
+                        withContext(Dispatchers.IO) {
+                            db.dao.upsertTuple(entry0)
+                            db.dao.upsertTuple(entry1)
+                            db.dao.upsertTuple(entry2)
+                            db.dao.upsertTuple(entry3)
+                        }
+                    }
+                    delta += 100
+                }
+
+                runOnUiThread {
+                    dummyWorkoutID++
+                    startStopButton.text = "Start"
+                    isDatabaseSync = false
+                }
+            } catch(e: Exception) {
+                // do nothing? idk what to do for now
+                isDatabaseSync = false
+            }
+        }.start()
     }
 
     // Update the display with the current time
