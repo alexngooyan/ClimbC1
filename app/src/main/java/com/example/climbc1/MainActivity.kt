@@ -107,6 +107,7 @@ class MainActivity : AppCompatActivity() {
         val black2 = ContextCompat.getColor(this, R.color.black2)
         val black1 = ContextCompat.getColor(this, R.color.black)
         val white = ContextCompat.getColor(this, R.color.white)
+        val orange1 = ContextCompat.getColor(this, R.color.orange1)
 
         //get calendar date to update on timer header
         val calendar = Calendar.getInstance()
@@ -160,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                 if (clockRunning) { //stop timer
                     stopTimer()
                     timerBg.setBackgroundColor(black2)
-                    startStopButton.setBackgroundColor(teal1)
+                    startStopButton.setBackgroundColor(orange1)
                     startStopButton.setTextColor(black1)
                     timerDisplayText.setTextColor(white)
                     sessionNumberText.setTextColor(white)
@@ -171,7 +172,6 @@ class MainActivity : AppCompatActivity() {
                     sendToESP("STOP")
                     dataReceiver()
 
-
                 } else { //start timer and startup sequence
                     resetTimer()
 
@@ -180,35 +180,96 @@ class MainActivity : AppCompatActivity() {
                     binding.transitionBg.visibility = View.VISIBLE
 
                     val bluetoothScreen: ConstraintLayout = binding.bluetoothLoadingScreen
-                    bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
-                    bluetoothScreen.visibility = View.VISIBLE
+//                    bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
+//                    bluetoothScreen.visibility = View.VISIBLE
 
-                    bluetoothScreen.animate()
-                        .alpha(1f)  // Fade to fully visible
-                        .setDuration(1000)  // Set the duration of the fade
-                        .start()
-
+                    //signals for screens coroutines to start
                     var bluetoothConnected = false
 
-                    // bluetooth screen goes away
+
+                    //all coroutines related to start session sequence (BLE+Calibration)
                     CoroutineScope(Dispatchers.Main).launch {
-                        delay(1000L) // Delay in milliseconds
-                        while(!bluetoothConnected) {
-                            delay(50L)
+                        val startInitialFade = launch {
+                            bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
+                            bluetoothScreen.visibility = View.VISIBLE
+
+                            bluetoothScreen.animate()
+                                .alpha(1f)  // Fade to fully visible
+                                .setDuration(1000)  // Set the duration of the fade
+                                .start()
                         }
 
-                        bluetoothScreen.animate()
-                            .alpha(0f)  // Fade to fully invisible
-                            .setDuration(1000)  // Set the duration of the fade
-                            .withEndAction {
-                                bluetoothScreen.visibility = View.GONE  // After fading, set visibility to gone
+                        startInitialFade.join()
+
+                        //wait for BLE connection confirmation sent from other coroutine
+                        val waitForBLEConn = launch {
+                            while(!bluetoothConnected) {
+                                delay(50L)
                             }
-                            .start()
+
+                            bluetoothScreen.animate()
+                                .alpha(0f)  // Fade to fully invisible
+                                .setDuration(1000)  // Set the duration of the fade
+                                .withEndAction {
+                                    bluetoothScreen.visibility = View.GONE  // After fading, set visibility to gone
+                                }
+                                .start()
+                        }
+
+                        waitForBLEConn.join()
+
+                        val startCalibrationSequence = launch {
+                            val calibrationScreen: ConstraintLayout = binding.calibrationScreen
+                            calibrationScreen.alpha = 0f  // Make sure the view starts invisible
+                            calibrationScreen.visibility = View.VISIBLE
+
+                            calibrationScreen.animate()
+                                .alpha(1f)  // Fade to fully visible
+                                .setDuration(1000)  // Set the duration of the fade
+                                .start()
+
+                            startCalibrationTimer()
+                        }
+
+                        startCalibrationSequence.join()
+
+                        //run for 11 seconds (1000 ms buffer) before end
+                        val endCalibrationSequence = launch {
+                            delay(11000L) // Delay in milliseconds, 11 seconds
+                            stopCalibrationTimer()
+
+                            binding.transitionBg.visibility = View.GONE
+
+                            val calibrationScreen: ConstraintLayout = binding.calibrationScreen
+                            calibrationScreen.animate()
+                                .alpha(0f)  // Fade to fully invisible
+                                .setDuration(1000)  // Set the duration of the fade
+                                .withEndAction {
+                                    calibrationScreen.visibility = View.GONE  // After fading, set visibility to gone
+                                }
+                                .start()
+
+                            resetTimer()
+                            startStopButton.text = "Stop"
+
+                            // Send signal to ESP to begin data send process.
+                            sendToESP("START")
+                            lastUnixTimeSinceStart = System.currentTimeMillis()
+                        }
+
+                        endCalibrationSequence.join()
+
+                        val startSession = launch {
+                            startTimer()
+                            startStopButton.isEnabled = true
+                            startStopButton.isClickable = true
+                        }
 
                     }
 
                     // Try to connect to device "CLIMB_Device"
                     CoroutineScope(Dispatchers.Main).launch {
+                        delay(1000L)
                         if (bluetoothSocket == null || outputStream == null || inputStream == null) {
                             val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
                             val esp32Device = pairedDevices?.find { it.name == "CLIMB_Device" }
@@ -220,66 +281,6 @@ class MainActivity : AppCompatActivity() {
                             inputStream = bluetoothSocket?.inputStream
                         }
                         bluetoothConnected = true
-                    }
-
-                    //calibration starts
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(6600L) // Delay in milliseconds
-                        val calibrationScreen: ConstraintLayout = binding.calibrationScreen
-                        calibrationScreen.alpha = 0f  // Make sure the view starts invisible
-                        calibrationScreen.visibility = View.VISIBLE
-
-                        calibrationScreen.animate()
-                            .alpha(1f)  // Fade to fully visible
-                            .setDuration(1000)  // Set the duration of the fade
-                            .start()
-                    }
-
-                    //calibration starts
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(6700L) // Delay in milliseconds
-                        startCalibrationTimer()
-                    }
-
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(16800L) // Delay in milliseconds
-                        stopCalibrationTimer()
-                    }
-
-
-
-                    //calibration ends
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(16900L) // Delay in milliseconds
-
-                        binding.transitionBg.visibility = View.GONE
-
-                        val calibrationScreen: ConstraintLayout = binding.calibrationScreen
-                        calibrationScreen.animate()
-                            .alpha(0f)  // Fade to fully invisible
-                            .setDuration(1000)  // Set the duration of the fade
-                            .withEndAction {
-                                calibrationScreen.visibility = View.GONE  // After fading, set visibility to gone
-                            }
-                            .start()
-
-                        resetTimer()
-                        startStopButton.text = "Stop"
-
-                        // Send signal to ESP to begin data send process.
-                        sendToESP("START")
-                        lastUnixTimeSinceStart = System.currentTimeMillis()
-
-
-                    }
-
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(17900L) // Delay in milliseconds
-                        startTimer()
-
-                        startStopButton.isEnabled = true
-                        startStopButton.isClickable = true
-
                     }
 
                     timerBg.setBackgroundColor(teal1)
@@ -389,8 +390,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 runOnUiThread {
+                    val teal1 = ContextCompat.getColor(this, R.color.teal1)
                     dummyWorkoutID++
                     startStopButton.text = "Start"
+                    startStopButton.setBackgroundColor(teal1)
                     sessionNumberText.text = "Session $dummyWorkoutID"
                     isDatabaseSync = false
                 }
