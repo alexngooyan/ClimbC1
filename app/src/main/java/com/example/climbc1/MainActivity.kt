@@ -20,9 +20,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -40,6 +45,7 @@ import java.io.InputStreamReader
 import java.io.OutputStream
 import java.util.UUID
 import java.util.logging.Handler
+import kotlin.math.max
 
 class MainActivity : AppCompatActivity() {
 
@@ -155,6 +161,9 @@ class MainActivity : AppCompatActivity() {
         startStopButton.setTextColor(black1)
         dateDisplayText.text = dateString
 
+        val sharedPref = this.getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+
         // Start button functionality
         startStopButton.setOnClickListener {
             if (!isDatabaseSync) {
@@ -170,6 +179,32 @@ class MainActivity : AppCompatActivity() {
 
                     //Stop ESP control
                     sendToESP("STOP")
+
+                    //get maxes from database and display
+                    lifecycleScope.launch {
+                        val maxF3A2 = db.dao.getMaxF3A2()
+                        val maxF4A2 = db.dao.getMaxF4A2()
+                        val maxF3A4 = db.dao.getMaxF3A4()
+                        val maxF4A4 = db.dao.getMaxF4A4()
+
+                        var maxA2 = 0
+                        var maxA4 = 0
+
+                        //get around int? type mismatch (bruh)
+                        if((maxF3A2 != null && maxF3A2.toInt() >= 0) && (maxF4A2 != null && maxF4A2.toInt() >= 0)) {
+                            maxA2 = max(maxF3A2, maxF4A2)
+                        }
+
+                        if((maxF3A4 != null && maxF3A4.toInt() >= 0) && (maxF4A4 != null && maxF4A4.toInt() >= 0)) {
+                            maxA4 = max(maxF3A4, maxF4A4)
+                        }
+
+                        editor.putInt("maxA2", maxA2)
+                        editor.putInt("maxA4", maxA4)
+
+                        editor.apply()
+                    }
+
                     dataReceiver()
 
                 } else { //start timer and startup sequence
@@ -219,6 +254,7 @@ class MainActivity : AppCompatActivity() {
                         waitForBLEConn.join()
 
                         val startCalibrationSequence = launch {
+                            delay(1000L)
                             val calibrationScreen: ConstraintLayout = binding.calibrationScreen
                             calibrationScreen.alpha = 0f  // Make sure the view starts invisible
                             calibrationScreen.visibility = View.VISIBLE
@@ -264,6 +300,8 @@ class MainActivity : AppCompatActivity() {
                             startStopButton.isEnabled = true
                             startStopButton.isClickable = true
                         }
+
+                        startSession.join()
 
                     }
 
@@ -396,9 +434,12 @@ class MainActivity : AppCompatActivity() {
                     startStopButton.setBackgroundColor(teal1)
                     sessionNumberText.text = "Session $dummyWorkoutID"
                     isDatabaseSync = false
+
+
+
                 }
             } catch(e: Exception) {
-                // do nothing? idk what to do for now
+                // do nothing? idk what to do for now LMFAO JUBI
                 isDatabaseSync = false
             }
         }.start()

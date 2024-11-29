@@ -82,6 +82,13 @@ class HomeFragment : Fragment() {
         binding.A2ThresholdText.text = a2ThresholdDisplayed.toString()
         binding.A4ThresholdText.text = a4ThresholdDisplayed.toString()
 
+        val maxA2ToDisplay = sharedPref.getInt("maxA2", 0)
+        val maxA4ToDisplay = sharedPref.getInt("maxA4", 0)
+
+        binding.A2MaxText.text = maxA2ToDisplay.toString()
+        binding.A4MaxText.text = maxA4ToDisplay.toString()
+
+
         /*former code to change text on home to "fuck rectangles"
         val textView: TextView = binding.textHome
         homeViewModel.text.observe(viewLifecycleOwner) {

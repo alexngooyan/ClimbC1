@@ -25,6 +25,21 @@ interface WorkoutDataDao {
     @Query("SELECT * FROM WorkoutData ORDER BY time")
     suspend fun getAllData(): List<WorkoutData>
 
+    //added by Alex to get maxes for display on the home page (if these dont work, delete and try again)
+
+    @Query("SELECT MAX(finger) FROM WorkoutData WHERE finger = 0")
+    suspend fun getMaxF3A2(): Int?
+
+    @Query("SELECT MAX(finger) FROM WorkoutData WHERE finger = 1")
+    suspend fun getMaxF3A4(): Int?
+
+    @Query("SELECT MAX(finger) FROM WorkoutData WHERE finger = 2")
+    suspend fun getMaxF4A2(): Int?
+
+    @Query("SELECT MAX(finger) FROM WorkoutData WHERE finger = 3")
+    suspend fun getMaxF4A4(): Int?
+
+
     //DANGEROUS! DESTRUCTIVE, USE W CAUTION
     @Query("DELETE FROM WorkoutData")
     suspend fun resetWorkoutTable()
