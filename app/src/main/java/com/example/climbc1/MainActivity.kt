@@ -180,12 +180,19 @@ class MainActivity : AppCompatActivity() {
                     //Stop ESP control
                     sendToESP("STOP")
 
+                    dataReceiver()
+
                     //get maxes from database and display
                     lifecycleScope.launch {
-                        val maxF3A2 = db.dao.getMaxF3A2()
-                        val maxF4A2 = db.dao.getMaxF4A2()
-                        val maxF3A4 = db.dao.getMaxF3A4()
-                        val maxF4A4 = db.dao.getMaxF4A4()
+                        val maxF3A2 = db.dao.getMaxFRFromFinger(0)
+                        val maxF4A2 = db.dao.getMaxFRFromFinger(1)
+                        val maxF3A4 = db.dao.getMaxFRFromFinger(2)
+                        val maxF4A4 = db.dao.getMaxFRFromFinger(3)
+
+                        println("maxF3A2: "+maxF3A2)
+                        println("maxA4A2: "+maxF4A2)
+                        println("maxA3A4: "+maxF3A4)
+                        println("maxA4A4: "+maxF4A4)
 
                         var maxA2 = 0
                         var maxA4 = 0
@@ -204,8 +211,6 @@ class MainActivity : AppCompatActivity() {
 
                         editor.apply()
                     }
-
-                    dataReceiver()
 
                 } else { //start timer and startup sequence
                     resetTimer()
@@ -265,6 +270,7 @@ class MainActivity : AppCompatActivity() {
                                 .start()
 
                             startCalibrationTimer()
+                            sendToESP("START")
                         }
 
                         startCalibrationSequence.join()
@@ -289,7 +295,7 @@ class MainActivity : AppCompatActivity() {
                             startStopButton.text = "Stop"
 
                             // Send signal to ESP to begin data send process.
-                            sendToESP("START")
+//                            sendToESP("START")
                             lastUnixTimeSinceStart = System.currentTimeMillis()
                         }
 
@@ -434,9 +440,6 @@ class MainActivity : AppCompatActivity() {
                     startStopButton.setBackgroundColor(teal1)
                     sessionNumberText.text = "Session $dummyWorkoutID"
                     isDatabaseSync = false
-
-
-
                 }
             } catch(e: Exception) {
                 // do nothing? idk what to do for now LMFAO JUBI
