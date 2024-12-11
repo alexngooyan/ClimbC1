@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.ClipData
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.icu.util.Calendar
@@ -154,188 +155,170 @@ class MainActivity : AppCompatActivity() {
         sessionNumberText = findViewById(R.id.sessionNumberText)
         dateDisplayText = findViewById(R.id.dateDisplayText)
 
-        sessionNumberText.text = "Session $dummyWorkoutID"
-
         //init changes
         startStopButton.setBackgroundColor(teal1)
         startStopButton.setTextColor(black1)
         dateDisplayText.text = dateString
 
         val sharedPref = this.getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
+        dummyWorkoutID = sharedPref.getInt("nextSession", 0)
+
+        sessionNumberText.text = "Session $dummyWorkoutID"
 
         // Start button functionality
         startStopButton.setOnClickListener {
-            if (!isDatabaseSync) {
-                if (clockRunning) { //stop timer
-                    stopTimer()
-                    timerBg.setBackgroundColor(black2)
-                    startStopButton.setBackgroundColor(orange1)
-                    startStopButton.setTextColor(black1)
-                    timerDisplayText.setTextColor(white)
-                    sessionNumberText.setTextColor(white)
-                    dateDisplayText.setTextColor(white)
-                    startStopButton.text = "Loading..."
+//            var lock = true
+//            if (lock) {
+//                val dummy = WorkoutData(1,1,1,1,null)
+//                lifecycleScope.launch() {
+//                    db.dao.upsertTuple(dummy)
+//                }
+//            } else {
+                if (!isDatabaseSync) {
+                    if (clockRunning) { //stop timer
+                        stopTimer()
+                        timerBg.setBackgroundColor(black2)
+                        startStopButton.setBackgroundColor(orange1)
+                        startStopButton.setTextColor(black1)
+                        timerDisplayText.setTextColor(white)
+                        sessionNumberText.setTextColor(white)
+                        dateDisplayText.setTextColor(white)
+                        startStopButton.text = "Loading..."
 
-                    //Stop ESP control
-                    sendToESP("STOP")
+                        //Stop ESP control
+                        sendToESP("STOP")
 
-                    dataReceiver()
+                        dataReceiver(sharedPref, this)
 
-                    //get maxes from database and display
-                    lifecycleScope.launch {
-                        val maxF3A2 = db.dao.getMaxFRFromFinger(0)
-                        val maxF4A2 = db.dao.getMaxFRFromFinger(1)
-                        val maxF3A4 = db.dao.getMaxFRFromFinger(2)
-                        val maxF4A4 = db.dao.getMaxFRFromFinger(3)
+                    } else { //start timer and startup sequence
+                        resetTimer()
 
-                        println("maxF3A2: "+maxF3A2)
-                        println("maxA4A2: "+maxF4A2)
-                        println("maxA3A4: "+maxF3A4)
-                        println("maxA4A4: "+maxF4A4)
+                        startStopButton.isEnabled = false
+                        startStopButton.isClickable = false
+                        binding.transitionBg.visibility = View.VISIBLE
 
-                        var maxA2 = 0
-                        var maxA4 = 0
-
-                        //get around int? type mismatch (bruh)
-                        if((maxF3A2 != null && maxF3A2.toInt() >= 0) && (maxF4A2 != null && maxF4A2.toInt() >= 0)) {
-                            maxA2 = max(maxF3A2, maxF4A2)
-                        }
-
-                        if((maxF3A4 != null && maxF3A4.toInt() >= 0) && (maxF4A4 != null && maxF4A4.toInt() >= 0)) {
-                            maxA4 = max(maxF3A4, maxF4A4)
-                        }
-
-                        editor.putInt("maxA2", maxA2)
-                        editor.putInt("maxA4", maxA4)
-
-                        editor.apply()
-                    }
-
-                } else { //start timer and startup sequence
-                    resetTimer()
-
-                    startStopButton.isEnabled = false
-                    startStopButton.isClickable = false
-                    binding.transitionBg.visibility = View.VISIBLE
-
-                    val bluetoothScreen: ConstraintLayout = binding.bluetoothLoadingScreen
+                        val bluetoothScreen: ConstraintLayout = binding.bluetoothLoadingScreen
 //                    bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
 //                    bluetoothScreen.visibility = View.VISIBLE
 
-                    //signals for screens coroutines to start
-                    var bluetoothConnected = false
+                        //signals for screens coroutines to start
+                        var bluetoothConnected = false
 
 
-                    //all coroutines related to start session sequence (BLE+Calibration)
-                    CoroutineScope(Dispatchers.Main).launch {
-                        val startInitialFade = launch {
-                            bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
-                            bluetoothScreen.visibility = View.VISIBLE
+                        //all coroutines related to start session sequence (BLE+Calibration)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val startInitialFade = launch {
+                                bluetoothScreen.alpha = 0f  // Make sure the view starts invisible
+                                bluetoothScreen.visibility = View.VISIBLE
 
-                            bluetoothScreen.animate()
-                                .alpha(1f)  // Fade to fully visible
-                                .setDuration(1000)  // Set the duration of the fade
-                                .start()
-                        }
-
-                        startInitialFade.join()
-
-                        //wait for BLE connection confirmation sent from other coroutine
-                        val waitForBLEConn = launch {
-                            while(!bluetoothConnected) {
-                                delay(50L)
+                                bluetoothScreen.animate()
+                                    .alpha(1f)  // Fade to fully visible
+                                    .setDuration(1000)  // Set the duration of the fade
+                                    .start()
                             }
 
-                            bluetoothScreen.animate()
-                                .alpha(0f)  // Fade to fully invisible
-                                .setDuration(1000)  // Set the duration of the fade
-                                .withEndAction {
-                                    bluetoothScreen.visibility = View.GONE  // After fading, set visibility to gone
+                            startInitialFade.join()
+
+                            //wait for BLE connection confirmation sent from other coroutine
+                            val waitForBLEConn = launch {
+                                while (!bluetoothConnected) {
+                                    delay(50L)
                                 }
-                                .start()
-                        }
 
-                        waitForBLEConn.join()
+                                bluetoothScreen.animate()
+                                    .alpha(0f)  // Fade to fully invisible
+                                    .setDuration(1000)  // Set the duration of the fade
+                                    .withEndAction {
+                                        bluetoothScreen.visibility =
+                                            View.GONE  // After fading, set visibility to gone
+                                    }
+                                    .start()
+                            }
 
-                        val startCalibrationSequence = launch {
-                            delay(1000L)
-                            val calibrationScreen: ConstraintLayout = binding.calibrationScreen
-                            calibrationScreen.alpha = 0f  // Make sure the view starts invisible
-                            calibrationScreen.visibility = View.VISIBLE
+                            waitForBLEConn.join()
 
-                            calibrationScreen.animate()
-                                .alpha(1f)  // Fade to fully visible
-                                .setDuration(1000)  // Set the duration of the fade
-                                .start()
+                            val startCalibrationSequence = launch {
+                                delay(1000L)
+                                val calibrationScreen: ConstraintLayout = binding.calibrationScreen
+                                calibrationScreen.alpha = 0f  // Make sure the view starts invisible
+                                calibrationScreen.visibility = View.VISIBLE
 
-                            startCalibrationTimer()
-                            sendToESP("START")
-                        }
+                                calibrationScreen.animate()
+                                    .alpha(1f)  // Fade to fully visible
+                                    .setDuration(1000)  // Set the duration of the fade
+                                    .start()
 
-                        startCalibrationSequence.join()
+                                startCalibrationTimer()
+                                sendToESP("START")
+                            }
 
-                        //run for 11 seconds (1000 ms buffer) before end
-                        val endCalibrationSequence = launch {
-                            delay(11000L) // Delay in milliseconds, 11 seconds
-                            stopCalibrationTimer()
+                            startCalibrationSequence.join()
 
-                            binding.transitionBg.visibility = View.GONE
+                            //run for 11 seconds (1000 ms buffer) before end
+                            val endCalibrationSequence = launch {
+                                delay(11000L) // Delay in milliseconds, 11 seconds
+                                stopCalibrationTimer()
 
-                            val calibrationScreen: ConstraintLayout = binding.calibrationScreen
-                            calibrationScreen.animate()
-                                .alpha(0f)  // Fade to fully invisible
-                                .setDuration(1000)  // Set the duration of the fade
-                                .withEndAction {
-                                    calibrationScreen.visibility = View.GONE  // After fading, set visibility to gone
-                                }
-                                .start()
+                                binding.transitionBg.visibility = View.GONE
 
-                            resetTimer()
-                            startStopButton.text = "Stop"
+                                val calibrationScreen: ConstraintLayout = binding.calibrationScreen
+                                calibrationScreen.animate()
+                                    .alpha(0f)  // Fade to fully invisible
+                                    .setDuration(1000)  // Set the duration of the fade
+                                    .withEndAction {
+                                        calibrationScreen.visibility =
+                                            View.GONE  // After fading, set visibility to gone
+                                    }
+                                    .start()
 
-                            // Send signal to ESP to begin data send process.
+                                resetTimer()
+                                startStopButton.text = "Stop"
+
+                                // Send signal to ESP to begin data send process.
 //                            sendToESP("START")
-                            lastUnixTimeSinceStart = System.currentTimeMillis()
+                                lastUnixTimeSinceStart = System.currentTimeMillis()
+                            }
+
+                            endCalibrationSequence.join()
+
+                            val startSession = launch {
+                                startTimer()
+                                startStopButton.isEnabled = true
+                                startStopButton.isClickable = true
+                            }
+
+                            startSession.join()
+
                         }
 
-                        endCalibrationSequence.join()
-
-                        val startSession = launch {
-                            startTimer()
-                            startStopButton.isEnabled = true
-                            startStopButton.isClickable = true
+                        // Try to connect to device "CLIMB_Device"
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delay(1000L)
+                            if (bluetoothSocket == null || outputStream == null || inputStream == null) {
+                                val pairedDevices: Set<BluetoothDevice>? =
+                                    bluetoothAdapter?.bondedDevices
+                                val esp32Device = pairedDevices?.find { it.name == "CLIMB_Device" }
+                                val uuid =
+                                    UUID.fromString("00001101-0000-1000-8000-00805F9B34FB") // Standard UUID for serial
+                                bluetoothSocket =
+                                    esp32Device?.createRfcommSocketToServiceRecord(uuid)
+                                bluetoothSocket?.connect()
+                                outputStream = bluetoothSocket?.outputStream
+                                inputStream = bluetoothSocket?.inputStream
+                            }
+                            bluetoothConnected = true
                         }
 
-                        startSession.join()
-
+                        timerBg.setBackgroundColor(teal1)
+                        startStopButton.setBackgroundColor(black1)
+                        startStopButton.setTextColor(teal1)
+                        timerDisplayText.setTextColor(black1)
+                        sessionNumberText.setTextColor(black1)
+                        dateDisplayText.setTextColor(black1)
+                        //startStopButton.text = "Stop"
                     }
-
-                    // Try to connect to device "CLIMB_Device"
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(1000L)
-                        if (bluetoothSocket == null || outputStream == null || inputStream == null) {
-                            val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-                            val esp32Device = pairedDevices?.find { it.name == "CLIMB_Device" }
-                            val uuid =
-                                UUID.fromString("00001101-0000-1000-8000-00805F9B34FB") // Standard UUID for serial
-                            bluetoothSocket = esp32Device?.createRfcommSocketToServiceRecord(uuid)
-                            bluetoothSocket?.connect()
-                            outputStream = bluetoothSocket?.outputStream
-                            inputStream = bluetoothSocket?.inputStream
-                        }
-                        bluetoothConnected = true
-                    }
-
-                    timerBg.setBackgroundColor(teal1)
-                    startStopButton.setBackgroundColor(black1)
-                    startStopButton.setTextColor(teal1)
-                    timerDisplayText.setTextColor(black1)
-                    sessionNumberText.setTextColor(black1)
-                    dateDisplayText.setTextColor(black1)
-                    //startStopButton.text = "Stop"
                 }
-            }
+//            }
         }
 
         val navView: BottomNavigationView = binding.navView
@@ -355,6 +338,11 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         db = WorkoutDataDatabase.getDatabase(this)
+
+//        val dummy = WorkoutData(-1,-1,-1,-1,-1)
+//        lifecycleScope.launch() {
+//            db.dao.upsertTuple(dummy)
+//        }
 
     }
 
@@ -400,52 +388,102 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun dataReceiver() {
-        Thread {
-            try {
-                val reader = BufferedReader(InputStreamReader(inputStream))
-                var delta: Long = 0
-                while (true) {
-                    isDatabaseSync = true
-                    val line = reader.readLine() ?: break
+    private fun dataReceiver(sharedPref: SharedPreferences, context: Context) {
+        lifecycleScope.launch() {
+            withContext(Dispatchers.IO) {
+                isDatabaseSync = true
+                try {
+                    val reader = BufferedReader(InputStreamReader(inputStream))
+                    var delta: Long = 0
+                    while (true) {
+                        val line = reader.readLine() ?: break
 
-                    if (line == "EOF") {
-                        break
-                    }
-                    val values = line.split(":").map { it.toInt() }
-                    val pointer = values[0]
-                    val middle = values[1]
-                    val ring = values[2]
-                    val pinky = values[3]
-                    val entry0 = WorkoutData(lastUnixTimeSinceStart+delta,pointer,dummyWorkoutID,0, null)
-                    val entry1 = WorkoutData(lastUnixTimeSinceStart+delta,middle,dummyWorkoutID,1, null)
-                    val entry2 = WorkoutData(lastUnixTimeSinceStart+delta,ring,dummyWorkoutID,2, null)
-                    val entry3 = WorkoutData(lastUnixTimeSinceStart+delta,pinky,dummyWorkoutID,3, null)
-
-                    lifecycleScope.launch() {
-                        withContext(Dispatchers.IO) {
-                            db.dao.upsertTuple(entry0)
-                            db.dao.upsertTuple(entry1)
-                            db.dao.upsertTuple(entry2)
-                            db.dao.upsertTuple(entry3)
+                        if (line == "EOF") {
+                            break
                         }
-                    }
-                    delta += 100
-                }
+                        val values = line.split(":").map { it.toInt() }
+                        val pointer = values[0]
+                        val middle = values[1]
+                        val ring = values[2]
+                        val pinky = values[3]
+                        val entry0 = WorkoutData(
+                            lastUnixTimeSinceStart + delta,
+                            pointer,
+                            dummyWorkoutID,
+                            0,
+                            null
+                        )
+                        val entry1 = WorkoutData(
+                            lastUnixTimeSinceStart + delta,
+                            middle,
+                            dummyWorkoutID,
+                            1,
+                            null
+                        )
+                        val entry2 = WorkoutData(
+                            lastUnixTimeSinceStart + delta,
+                            ring,
+                            dummyWorkoutID,
+                            2,
+                            null
+                        )
+                        val entry3 = WorkoutData(
+                            lastUnixTimeSinceStart + delta,
+                            pinky,
+                            dummyWorkoutID,
+                            3,
+                            null
+                        )
 
-                runOnUiThread {
-                    val teal1 = ContextCompat.getColor(this, R.color.teal1)
+                        db.dao.upsertTuple(entry0)
+                        db.dao.upsertTuple(entry1)
+                        db.dao.upsertTuple(entry2)
+                        db.dao.upsertTuple(entry3)
+                        delta += 100
+                    }
                     dummyWorkoutID++
-                    startStopButton.text = "Start"
-                    startStopButton.setBackgroundColor(teal1)
-                    sessionNumberText.text = "Session $dummyWorkoutID"
-                    isDatabaseSync = false
+
+                    runOnUiThread {
+                        val teal1 = ContextCompat.getColor(context, R.color.teal1)
+                        startStopButton.text = "Start"
+                        startStopButton.setBackgroundColor(teal1)
+                        sessionNumberText.text = "Session $dummyWorkoutID"
+                    }
+
+                    val maxF3A2 = db.dao.getMaxFRFromFingerAndID(0, dummyWorkoutID-1)
+                    val maxF4A2 = db.dao.getMaxFRFromFingerAndID(1, dummyWorkoutID-1)
+                    val maxF3A4 = db.dao.getMaxFRFromFingerAndID(2, dummyWorkoutID-1)
+                    val maxF4A4 = db.dao.getMaxFRFromFingerAndID(3, dummyWorkoutID-1)
+
+                    println("maxF3A2: " + maxF3A2)
+                    println("maxA4A2: " + maxF4A2)
+                    println("maxA3A4: " + maxF3A4)
+                    println("maxA4A4: " + maxF4A4)
+
+                    var maxA2 = 0
+                    var maxA4 = 0
+
+                    //get around int? type mismatch (bruh)
+                    if ((maxF3A2 != null && maxF3A2.toInt() >= 0) && (maxF4A2 != null && maxF4A2.toInt() >= 0)) {
+                        maxA2 = max(maxF3A2, maxF4A2)
+                    }
+
+                    if ((maxF3A4 != null && maxF3A4.toInt() >= 0) && (maxF4A4 != null && maxF4A4.toInt() >= 0)) {
+                        maxA4 = max(maxF3A4, maxF4A4)
+                    }
+
+                    val editor = sharedPref.edit()
+                    editor.putInt("maxA2", maxA2)
+                    editor.putInt("nextSession", dummyWorkoutID)
+                    editor.putInt("maxA4", maxA4)
+                    editor.apply()
+
+                } catch (_: Exception) {
+                    // do nothing? idk what to do for now LMFAO JUBI
                 }
-            } catch(e: Exception) {
-                // do nothing? idk what to do for now LMFAO JUBI
                 isDatabaseSync = false
             }
-        }.start()
+        }
     }
 
     // Update the display with the current time

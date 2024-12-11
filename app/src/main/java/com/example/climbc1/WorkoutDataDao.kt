@@ -30,6 +30,9 @@ interface WorkoutDataDao {
     @Query("SELECT MAX(forceReading) FROM WorkoutData WHERE finger = :finger")
     suspend fun getMaxFRFromFinger(finger: Int): Int?
 
+    @Query("SELECT MAX(forceReading) FROM WorkoutData WHERE finger = :finger AND workoutID = :id")
+    suspend fun getMaxFRFromFingerAndID(finger: Int, id: Int): Int?
+
     //DANGEROUS! DESTRUCTIVE, USE W CAUTION
     @Query("DELETE FROM WorkoutData")
     suspend fun resetWorkoutTable()
