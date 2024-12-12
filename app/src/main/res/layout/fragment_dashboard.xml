@@ -35,29 +35,15 @@
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="240dp"
                 android:elevation="2dp"
-                android:background="#222222"
+                android:background="#FFFFFF"
                 >
 
                 <!-- ImageView inside the rectangle -->
-                <ImageView
-                    android:id="@+id/ollie1"
-                    android:layout_width="150dp"
-                    android:layout_height="100dp"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginTop="0dp"
-                    android:elevation="1dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/oliver" />
-
-                <TextView
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/lineChart0"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textSize="35sp"
-                    android:elevation="0dp"
-                    android:textColor="@color/orange1"
-                    android:text="chart?chart?chart?chart?chart?chart?chart?chart?chart?"
-                    />
+                    android:layout_height="match_parent"
+                    android:layout_margin="16dp" />
             </FrameLayout>
 
 
@@ -69,28 +55,14 @@
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="50dp"
                 android:elevation="2dp"
-                android:background="#222222">
+                android:background="#FFFFFF">
 
                 <!-- ImageView inside the rectangle -->
-                <ImageView
-                    android:id="@+id/ollie2"
-                    android:layout_width="150dp"
-                    android:layout_height="100dp"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginTop="0dp"
-                    android:elevation="1dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/oliver" />
-
-                <TextView
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/lineChart1"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textSize="35sp"
-                    android:elevation="0dp"
-                    android:textColor="@color/teal1"
-                    android:text="chart?chart?chart?chart?chart?chart?chart?chart?chart?"
-                    />
+                    android:layout_height="match_parent"
+                    android:layout_margin="16dp" />
             </FrameLayout>
 
             <FrameLayout
@@ -100,29 +72,15 @@
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="50dp"
                 android:elevation="2dp"
-                android:background="#222222"
+                android:background="#FFFFFF"
                 >
 
                 <!-- ImageView inside the rectangle -->
-                <ImageView
-                    android:id="@+id/ollie3"
-                    android:layout_width="150dp"
-                    android:layout_height="100dp"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginTop="0dp"
-                    android:elevation="1dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/oliver" />
-
-                <TextView
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/lineChart2"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textSize="35sp"
-                    android:elevation="0dp"
-                    android:textColor="@color/white"
-                    android:text="chart?chart?chart?chart?chart?chart?chart?chart?chart?"
-                    />
+                    android:layout_height="match_parent"
+                    android:layout_margin="16dp" />
             </FrameLayout>
 
             <FrameLayout
@@ -132,29 +90,15 @@
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="50dp"
                 android:elevation="2dp"
-                android:background="#222222"
+                android:background="#FFFFFF"
                 >
 
                 <!-- ImageView inside the rectangle -->
-                <ImageView
-                    android:id="@+id/ollie4"
-                    android:layout_width="150dp"
-                    android:layout_height="100dp"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginTop="0dp"
-                    android:elevation="1dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/oliver" />
-
-                <TextView
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/lineChart3"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textSize="35sp"
-                    android:elevation="0dp"
-                    android:textColor="@color/orange1"
-                    android:text="chart?chart?chart?chart?chart?chart?chart?chart?chart?"
-                />
+                    android:layout_height="match_parent"
+                    android:layout_margin="16dp" />
             </FrameLayout>
 <!--            cheese spacer so you can see all charts-->
             <FrameLayout

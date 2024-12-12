@@ -35,6 +35,11 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.climbc1.databinding.ActivityMainBinding
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -44,6 +49,8 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.UUID
 import java.util.logging.Handler
 import kotlin.math.max
@@ -160,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         startStopButton.setTextColor(black1)
         dateDisplayText.text = dateString
 
-        val sharedPref = this.getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
         dummyWorkoutID = sharedPref.getInt("nextSession", 0)
 
         sessionNumberText.text = "Session $dummyWorkoutID"
@@ -249,7 +256,6 @@ class MainActivity : AppCompatActivity() {
                                     .start()
 
                                 startCalibrationTimer()
-                                sendToESP("START")
                             }
 
                             startCalibrationSequence.join()
@@ -276,6 +282,7 @@ class MainActivity : AppCompatActivity() {
 
                                 // Send signal to ESP to begin data send process.
 //                            sendToESP("START")
+                                sendToESP("START")
                                 lastUnixTimeSinceStart = System.currentTimeMillis()
                             }
 
@@ -339,9 +346,12 @@ class MainActivity : AppCompatActivity() {
 
         db = WorkoutDataDatabase.getDatabase(this)
 
-//        val dummy = WorkoutData(-1,-1,-1,-1,-1)
+//        UNCOMMENT BELOW TO RESET DB
 //        lifecycleScope.launch() {
-//            db.dao.upsertTuple(dummy)
+//            db.dao.resetWorkoutTable()
+//            val editor = sharedPref.edit()
+//            editor.putInt("nextSession", 0)
+//            editor.apply()
 //        }
 
     }
@@ -407,28 +417,28 @@ class MainActivity : AppCompatActivity() {
                         val ring = values[2]
                         val pinky = values[3]
                         val entry0 = WorkoutData(
-                            lastUnixTimeSinceStart + delta,
+                            delta,
                             pointer,
                             dummyWorkoutID,
                             0,
                             null
                         )
                         val entry1 = WorkoutData(
-                            lastUnixTimeSinceStart + delta,
+                            delta,
                             middle,
                             dummyWorkoutID,
                             1,
                             null
                         )
                         val entry2 = WorkoutData(
-                            lastUnixTimeSinceStart + delta,
+                            delta,
                             ring,
                             dummyWorkoutID,
                             2,
                             null
                         )
                         val entry3 = WorkoutData(
-                            lastUnixTimeSinceStart + delta,
+                            delta,
                             pinky,
                             dummyWorkoutID,
                             3,
@@ -439,7 +449,7 @@ class MainActivity : AppCompatActivity() {
                         db.dao.upsertTuple(entry1)
                         db.dao.upsertTuple(entry2)
                         db.dao.upsertTuple(entry3)
-                        delta += 100
+                        delta += 1
                     }
                     dummyWorkoutID++
 
@@ -500,4 +510,82 @@ class MainActivity : AppCompatActivity() {
         val timeLeft = String.format("%02d", secondsLeft)
         binding.calibrationTimerText.text = timeLeft
     }
+
+    fun setChartData(lineChart: LineChart, finger: Int, workoutID: Int?) {
+
+        val sharedPrefs = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
+        var lastSession: Int
+        if (workoutID == null) {
+            lastSession = sharedPrefs.getInt("nextSession", 0)
+            if (lastSession != 0) {
+                lastSession -= 1
+            } else {
+                return
+            }
+        } else {
+            lastSession = workoutID
+        }
+
+        lifecycleScope.launch {
+            val workoutData = db.dao.getWorkoutByIDAndFingOrderByTime(lastSession, finger)
+
+//            var entriesAL = ArrayList<Entry>()
+//
+//            var i = 0;
+//            while(i < 30) {
+//                var tempEntry = Entry(i.toFloat(), i.toFloat())
+//                entriesAL += tempEntry
+//                i++
+//            }
+//
+//            val entries: List<Entry> = entriesAL
+
+            val entries = workoutData.map { data ->
+                Entry(data.time.toFloat(), data.forceReading.toFloat())
+            }
+
+            val lineDataSet = LineDataSet(entries, "Force Readings").apply {
+                color = getColor(R.color.orange1)
+                valueTextColor = getColor(R.color.black)
+                lineWidth = 2f
+                circleRadius = 4f
+                setCircleColor(getColor(R.color.teal_700))
+                setDrawCircleHole(false)
+                setDrawValues(false)
+            }
+
+            // Add dataset to the chart
+            lineChart.data = LineData(lineDataSet)
+
+            // Customize chart appearance
+            lineChart.apply {
+
+                description.isEnabled = false
+                legend.isEnabled = false
+                axisRight.isEnabled = false
+
+                // Format X-Axis to display time
+                xAxis.apply {
+                    granularity = 1f
+//                    valueFormatter = TimeValueFormatter()
+                }
+            }
+
+            // Refresh the chart
+            lineChart.invalidate()
+        }
+
+
+    }
 }
+
+//class TimeValueFormatter : ValueFormatter() {
+//
+//    private val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+//
+//    override fun getFormattedValue(value: Float): String {
+//        // Convert the float value (assumed to be milliseconds) to a formatted time string
+//        val timeInMillis = value.toLong()
+//        return dateFormat.format(timeInMillis)
+//    }
+//}

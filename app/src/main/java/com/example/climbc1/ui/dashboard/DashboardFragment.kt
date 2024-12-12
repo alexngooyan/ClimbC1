@@ -9,8 +9,11 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.climbc1.MainActivity
 import com.example.climbc1.R
+import com.example.climbc1.WorkoutDataDatabase
 import com.example.climbc1.databinding.FragmentDashboardBinding
+import com.github.mikephil.charting.charts.LineChart
 import kotlinx.coroutines.selects.select
 
 class DashboardFragment : Fragment() {
@@ -23,6 +26,7 @@ class DashboardFragment : Fragment() {
 
     lateinit var sessionHistoryButton: Button
     lateinit var selectSessionButton: Button
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -220,6 +224,7 @@ class DashboardFragment : Fragment() {
             binding.sessionHistory.visibility = View.GONE
         }
 
+        setChartRoutine()
 
         return root
     }
@@ -227,5 +232,13 @@ class DashboardFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setChartRoutine() {
+        val mainActivity = activity as? MainActivity
+        mainActivity?.setChartData(binding.lineChart0,0, null)
+        mainActivity?.setChartData(binding.lineChart1, 1, null)
+        mainActivity?.setChartData(binding.lineChart2, 2, null)
+        mainActivity?.setChartData(binding.lineChart3, 3, null)
     }
 }
