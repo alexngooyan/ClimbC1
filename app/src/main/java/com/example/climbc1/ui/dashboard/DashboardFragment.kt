@@ -1,12 +1,21 @@
 package com.example.climbc1.ui.dashboard
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.marginStart
+import androidx.core.view.marginTop
+import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.climbc1.MainActivity
@@ -14,6 +23,9 @@ import com.example.climbc1.R
 import com.example.climbc1.WorkoutDataDatabase
 import com.example.climbc1.databinding.FragmentDashboardBinding
 import com.github.mikephil.charting.charts.LineChart
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
 
 class DashboardFragment : Fragment() {
@@ -26,6 +38,9 @@ class DashboardFragment : Fragment() {
 
     lateinit var sessionHistoryButton: Button
     lateinit var selectSessionButton: Button
+
+    private var currentSelectedSessionFrame: FrameLayout? = null
+    private var currentSelectedSession: Int? = null
 
 
     override fun onCreateView(
@@ -61,167 +76,14 @@ class DashboardFragment : Fragment() {
             binding.sessionHistory.visibility = View.VISIBLE
         }
 
-        val session1Button = binding.TempSession1
-
-        session1Button.setOnClickListener {
-            binding.sessionNum1.setBackgroundColor(white)
-            binding.sessionDate1.setBackgroundColor(black2)
-            binding.sessionTime1.setBackgroundColor(teal1)
-
-            binding.sessionNum1.setTextColor(black1)
-            binding.sessionDate1.setTextColor(white)
-            binding.sessionTime1.setTextColor(black1)
-
-            //set colors of button2
-            binding.sessionNum2.setBackgroundColor(black1)
-            binding.sessionDate2.setBackgroundColor(grey1)
-            binding.sessionTime2.setBackgroundColor(lightgrey)
-
-            binding.sessionNum2.setTextColor(white)
-            binding.sessionDate2.setTextColor(white)
-            binding.sessionTime2.setTextColor(black1)
-
-            //set colors of button3
-            binding.sessionNum3.setBackgroundColor(black1)
-            binding.sessionDate3.setBackgroundColor(grey1)
-            binding.sessionTime3.setBackgroundColor(lightgrey)
-
-            binding.sessionNum3.setTextColor(white)
-            binding.sessionDate3.setTextColor(white)
-            binding.sessionTime3.setTextColor(black1)
-
-            //set colors of button4
-            binding.sessionNum4.setBackgroundColor(black1)
-            binding.sessionDate4.setBackgroundColor(grey1)
-            binding.sessionTime4.setBackgroundColor(lightgrey)
-
-            binding.sessionNum4.setTextColor(white)
-            binding.sessionDate4.setTextColor(white)
-            binding.sessionTime4.setTextColor(black1)
-        }
-
-        val session2Button = binding.TempSession2
-
-        session2Button.setOnClickListener {
-            binding.sessionNum2.setBackgroundColor(white)
-            binding.sessionDate2.setBackgroundColor(black2)
-            binding.sessionTime2.setBackgroundColor(teal1)
-
-            binding.sessionNum2.setTextColor(black1)
-            binding.sessionDate2.setTextColor(white)
-            binding.sessionTime2.setTextColor(black1)
-
-            //set colors of button1
-            binding.sessionNum1.setBackgroundColor(black1)
-            binding.sessionDate1.setBackgroundColor(grey1)
-            binding.sessionTime1.setBackgroundColor(lightgrey)
-
-            binding.sessionNum1.setTextColor(white)
-            binding.sessionDate1.setTextColor(white)
-            binding.sessionTime1.setTextColor(black1)
-
-            //set colors of button3
-            binding.sessionNum3.setBackgroundColor(black1)
-            binding.sessionDate3.setBackgroundColor(grey1)
-            binding.sessionTime3.setBackgroundColor(lightgrey)
-
-            binding.sessionNum3.setTextColor(white)
-            binding.sessionDate3.setTextColor(white)
-            binding.sessionTime3.setTextColor(black1)
-
-            //set colors of button4
-            binding.sessionNum4.setBackgroundColor(black1)
-            binding.sessionDate4.setBackgroundColor(grey1)
-            binding.sessionTime4.setBackgroundColor(lightgrey)
-
-            binding.sessionNum4.setTextColor(white)
-            binding.sessionDate4.setTextColor(white)
-            binding.sessionTime4.setTextColor(black1)
-        }
-
-        val session3Button = binding.TempSession3
-
-        session3Button.setOnClickListener {
-            binding.sessionNum3.setBackgroundColor(white)
-            binding.sessionDate3.setBackgroundColor(black2)
-            binding.sessionTime3.setBackgroundColor(teal1)
-
-            binding.sessionNum3.setTextColor(black1)
-            binding.sessionDate3.setTextColor(white)
-            binding.sessionTime3.setTextColor(black1)
-
-            //set colors of button2
-            binding.sessionNum2.setBackgroundColor(black1)
-            binding.sessionDate2.setBackgroundColor(grey1)
-            binding.sessionTime2.setBackgroundColor(lightgrey)
-
-            binding.sessionNum2.setTextColor(white)
-            binding.sessionDate2.setTextColor(white)
-            binding.sessionTime2.setTextColor(black1)
-
-            //set colors of button3
-            binding.sessionNum1.setBackgroundColor(black1)
-            binding.sessionDate1.setBackgroundColor(grey1)
-            binding.sessionTime1.setBackgroundColor(lightgrey)
-
-            binding.sessionNum1.setTextColor(white)
-            binding.sessionDate1.setTextColor(white)
-            binding.sessionTime1.setTextColor(black1)
-
-            //set colors of button4
-            binding.sessionNum4.setBackgroundColor(black1)
-            binding.sessionDate4.setBackgroundColor(grey1)
-            binding.sessionTime4.setBackgroundColor(lightgrey)
-
-            binding.sessionNum4.setTextColor(white)
-            binding.sessionDate4.setTextColor(white)
-            binding.sessionTime4.setTextColor(black1)
-        }
-
-        val session4Button = binding.TempSession4
-
-        session4Button.setOnClickListener {
-            binding.sessionNum4.setBackgroundColor(white)
-            binding.sessionDate4.setBackgroundColor(black2)
-            binding.sessionTime4.setBackgroundColor(teal1)
-
-            binding.sessionNum4.setTextColor(black1)
-            binding.sessionDate4.setTextColor(white)
-            binding.sessionTime4.setTextColor(black1)
-
-            //set colors of button2
-            binding.sessionNum2.setBackgroundColor(black1)
-            binding.sessionDate2.setBackgroundColor(grey1)
-            binding.sessionTime2.setBackgroundColor(lightgrey)
-
-            binding.sessionNum2.setTextColor(white)
-            binding.sessionDate2.setTextColor(white)
-            binding.sessionTime2.setTextColor(black1)
-
-            //set colors of button3
-            binding.sessionNum3.setBackgroundColor(black1)
-            binding.sessionDate3.setBackgroundColor(grey1)
-            binding.sessionTime3.setBackgroundColor(lightgrey)
-
-            binding.sessionNum3.setTextColor(white)
-            binding.sessionDate3.setTextColor(white)
-            binding.sessionTime3.setTextColor(black1)
-
-            //set colors of button4
-            binding.sessionNum1.setBackgroundColor(black1)
-            binding.sessionDate1.setBackgroundColor(grey1)
-            binding.sessionTime1.setBackgroundColor(lightgrey)
-
-            binding.sessionNum1.setTextColor(white)
-            binding.sessionDate1.setTextColor(white)
-            binding.sessionTime1.setTextColor(black1)
-        }
+        tempSessionUpdater()
 
         selectSessionButton = binding.selectButton
 
         selectSessionButton.setOnClickListener {
             binding.scrollableCharts.visibility = View.VISIBLE
             binding.sessionHistory.visibility = View.GONE
+            setChartRoutine()
         }
 
         setChartRoutine()
@@ -236,9 +98,144 @@ class DashboardFragment : Fragment() {
 
     private fun setChartRoutine() {
         val mainActivity = activity as? MainActivity
-        mainActivity?.setChartData(binding.lineChart0,0, null)
-        mainActivity?.setChartData(binding.lineChart1, 1, null)
-        mainActivity?.setChartData(binding.lineChart2, 2, null)
-        mainActivity?.setChartData(binding.lineChart3, 3, null)
+        mainActivity?.setChartData(binding.lineChart0,0, currentSelectedSession)
+        mainActivity?.setChartData(binding.lineChart1, 1, currentSelectedSession)
+        mainActivity?.setChartData(binding.lineChart2, 2, currentSelectedSession)
+        mainActivity?.setChartData(binding.lineChart3, 3, currentSelectedSession)
+    }
+
+    private fun tempSessionUpdater() {
+        val db = WorkoutDataDatabase.getDatabase(requireContext())
+
+        val container = binding.tempSessionContainer
+
+        val numberOfFrames = 10 // Replace this with your derived variable
+
+        val jetBrainsFont = ResourcesCompat.getFont(requireContext(), R.font.jetbrains_mono_regular)
+
+        val db0 = CoroutineScope(Dispatchers.Main).launch {
+            val sessions = db.dao.getWorkoutSessions()
+
+            for (i in sessions) {
+                val frameLayout = FrameLayout(requireContext()).apply {
+                    id = View.generateViewId() // Generate a unique ID for each FrameLayout
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT
+                    ).apply {
+                        setMargins(16, 100, 16, 0) // Optional: Add margins
+                    }
+                    setTag(i)
+
+                    setOnClickListener {
+                        // Reset all other FrameLayouts to their default colors
+                        if (currentSelectedSessionFrame != null) {
+                            currentSelectedSessionFrame.let { selectedFrameLayout ->
+                                if (selectedFrameLayout != null) {
+                                    for (j in 0 until selectedFrameLayout.childCount) {
+                                        val selectedChild = selectedFrameLayout.getChildAt(j) as? TextView
+                                        selectedChild?.let { textView ->
+                                            resetColors(textView)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Loop through all child views in the clicked FrameLayout (TextViews)
+                        for (j in 0 until childCount) {
+                            val child = getChildAt(j) as? TextView
+                            child?.let { textView ->
+                                // Invert colors: change background and text colors
+                                val currentTextColor = textView.currentTextColor
+                                val currentBackgroundColor = (textView.background as? ColorDrawable)?.color
+
+                                // Set the new colors by swapping the current background and text colors
+                                textView.setTextColor(currentBackgroundColor ?: ContextCompat.getColor(requireContext(), R.color.black))
+                                textView.setBackgroundColor(currentTextColor)
+                            }
+                        }
+
+                        // Update the current selected FrameLayout
+                        currentSelectedSessionFrame = this
+                        currentSelectedSession = getTag() as? Int
+                    }
+
+                }
+
+                val titleTextView = TextView(requireContext()).apply {
+                    text = "SESSION $i"
+                    typeface = jetBrainsFont
+                    textSize = 40f
+                    gravity = Gravity.CENTER
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT
+                    ).apply {
+                        setMargins(0,0,0,170)
+                    }
+                    tag = "sessionTitle"
+                }
+                titleTextView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white)) //white
+                titleTextView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)) // black
+
+                val timeHandleTextView = TextView(requireContext()).apply {
+                    text = "TIME:"
+                    typeface = jetBrainsFont
+                    textSize = 25f
+                    gravity = Gravity.CENTER
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT
+                    ).apply {
+                        setMargins(0,170,520,0)
+                    }
+                    tag = "timeLabel"
+                }
+                timeHandleTextView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black2))
+                timeHandleTextView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+
+                val time = db.dao.getMaxTimeFromWorkoutID(i)
+
+                val timeTextView = TextView(requireContext()).apply {
+                    text = time.toString()
+                    typeface = jetBrainsFont
+                    textSize = 25f
+                    gravity = Gravity.CENTER
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT
+                    ).apply {
+                        setMargins(520,170,0,0)
+                    }
+                    tag = "timeValue"
+                }
+                timeTextView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.teal1))
+                timeTextView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+
+                frameLayout.addView(titleTextView)
+                frameLayout.addView(timeHandleTextView)
+                frameLayout.addView(timeTextView)
+
+                container.addView(frameLayout)
+            }
+        }
+    }
+
+    private fun resetColors(textView: TextView) {
+        when (textView.tag) {
+            "sessionTitle" -> {
+                textView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white)) // white
+                textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)) // black
+            }
+            "timeLabel" -> {
+                textView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black2)) // black2
+                textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white)) // white
+            }
+            "timeValue" -> {
+                textView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.teal1)) // teal1
+                textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)) // black
+            }
+        }
     }
 }

@@ -22,6 +22,12 @@ interface WorkoutDataDao {
     @Query("SELECT * FROM WorkoutData AS wd WHERE wd.workoutID = :idParam AND wd.finger = :finger ORDER BY wd.time")
     suspend fun getWorkoutByIDAndFingOrderByTime(idParam: Int, finger: Int): List<WorkoutData>
 
+    @Query("SELECT DISTINCT workoutID FROM WorkoutData")
+    suspend fun getWorkoutSessions(): List<Int>
+
+    @Query("SELECT MAX(time) FROM WorkoutData WHERE workoutID = :workoutID")
+    suspend fun getMaxTimeFromWorkoutID(workoutID: Int): List<Long>
+
     @Query("SELECT * FROM WorkoutData ORDER BY time")
     suspend fun getAllData(): List<WorkoutData>
 

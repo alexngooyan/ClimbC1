@@ -16,6 +16,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -351,6 +353,29 @@ class MainActivity : AppCompatActivity() {
 //            db.dao.resetWorkoutTable()
 //            val editor = sharedPref.edit()
 //            editor.putInt("nextSession", 0)
+//            editor.apply()
+
+//            var finger = 0
+//            for (i in 1..400) {
+//                val work: WorkoutData = WorkoutData(i.toLong(),i,0,finger,null)
+//                finger++
+//                if (finger > 3) {
+//                    finger = 0
+//                }
+//                db.dao.upsertTuple(work)
+//            }
+//            finger = 0
+//            for (i in 401..800) {
+//                val work: WorkoutData = WorkoutData(i.toLong(),i,1,finger,null)
+//                finger++
+//                if (finger > 3) {
+//                    finger = 0
+//                }
+//                db.dao.upsertTuple(work)
+//            }
+//            dummyWorkoutID = 2
+//            val editor = sharedPref.edit()
+//            editor.putInt("nextSession", 2)
 //            editor.apply()
 //        }
 
