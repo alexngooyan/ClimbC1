@@ -50,6 +50,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
+import java.sql.Types.NULL
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
@@ -258,6 +259,38 @@ class MainActivity : AppCompatActivity() {
                                     .start()
 
                                 startCalibrationTimer()
+
+                                // Send signal to ESP to begin data send process.
+//                            sendToESP("START")
+
+                                // Retrieve the stored hint values and set them if they exist
+                                val a2Threshold1 = sharedPref.getString("a2Threshold1", "--")
+                                val a2Threshold2 = sharedPref.getString("a2Threshold2", "--")
+                                val a4Threshold1 = sharedPref.getString("a4Threshold1", "--")
+                                val a4Threshold2 = sharedPref.getString("a4Threshold2", "--")
+
+                                var a2Threshold1ToESP = a2Threshold1
+                                var a2Threshold2ToESP = a2Threshold2
+                                var a4Threshold1ToESP = a4Threshold1
+                                var a4Threshold2ToESP = a4Threshold2
+
+                                if (a2Threshold1?.length == 1){
+                                    a2Threshold1ToESP = "0$a2Threshold1"
+                                }
+
+                                if (a2Threshold2?.length == 1){
+                                    a2Threshold2ToESP = "0$a2Threshold2"
+                                }
+
+                                if (a4Threshold1?.length == 1){
+                                    a4Threshold1ToESP = "0$a4Threshold1"
+                                }
+
+                                if (a4Threshold2?.length == 1){
+                                    a4Threshold2ToESP = "0$a4Threshold2"
+                                }
+
+                                sendToESP("START$a2Threshold1ToESP$a2Threshold2ToESP$a4Threshold1ToESP$a4Threshold2ToESP ")
                             }
 
                             startCalibrationSequence.join()
@@ -282,17 +315,6 @@ class MainActivity : AppCompatActivity() {
                                 resetTimer()
                                 startStopButton.text = "Stop"
 
-                                // Send signal to ESP to begin data send process.
-//                            sendToESP("START")
-
-                                // Retrieve the stored hint values and set them if they exist
-                                val a2Threshold1 = sharedPref.getString("a2Threshold1", "--")
-                                val a2Threshold2 = sharedPref.getString("a2Threshold2", "--")
-                                val a4Threshold1 = sharedPref.getString("a4Threshold1", "--")
-                                val a4Threshold2 = sharedPref.getString("a4Threshold2", "--")
-
-                                sendToESP("START, $a2Threshold1, $a2Threshold2, $a4Threshold1, $a4Threshold2")
-                                lastUnixTimeSinceStart = System.currentTimeMillis()
                             }
 
                             endCalibrationSequence.join()
