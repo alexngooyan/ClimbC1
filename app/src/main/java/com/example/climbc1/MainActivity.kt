@@ -13,6 +13,7 @@ import android.graphics.Typeface
 import android.icu.util.Calendar
 import android.media.RouteListingPreference
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
@@ -51,6 +52,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
+import java.sql.Types.NULL
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
@@ -79,6 +81,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var timerDisplayText: TextView
     lateinit var sessionNumberText: TextView
     lateinit var dateDisplayText: TextView
+    lateinit var sharedPref: SharedPreferences
 
     var clockRunning = false
     var timeElapsed = 0
@@ -169,7 +172,7 @@ class MainActivity : AppCompatActivity() {
         startStopButton.setTextColor(black1)
         dateDisplayText.text = dateString
 
-        val sharedPref = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
+        sharedPref = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
         dummyWorkoutID = sharedPref.getInt("nextSession", 0)
 
         sessionNumberText.text = "Session $dummyWorkoutID"
@@ -197,7 +200,7 @@ class MainActivity : AppCompatActivity() {
                         //Stop ESP control
                         sendToESP("STOP")
 
-                        dataReceiver(sharedPref, this)
+                        dataReceiver(this)
 
                     } else { //start timer and startup sequence
                         resetTimer()
@@ -258,6 +261,38 @@ class MainActivity : AppCompatActivity() {
                                     .start()
 
                                 startCalibrationTimer()
+
+                                // Send signal to ESP to begin data send process.
+//                            sendToESP("START")
+
+                                // Retrieve the stored hint values and set them if they exist
+                                val a2Threshold1 = sharedPref.getString("a2Threshold1", "--")
+                                val a2Threshold2 = sharedPref.getString("a2Threshold2", "--")
+                                val a4Threshold1 = sharedPref.getString("a4Threshold1", "--")
+                                val a4Threshold2 = sharedPref.getString("a4Threshold2", "--")
+
+                                var a2Threshold1ToESP = a2Threshold1
+                                var a2Threshold2ToESP = a2Threshold2
+                                var a4Threshold1ToESP = a4Threshold1
+                                var a4Threshold2ToESP = a4Threshold2
+
+                                if (a2Threshold1?.length == 1){
+                                    a2Threshold1ToESP = "0$a2Threshold1"
+                                }
+
+                                if (a2Threshold2?.length == 1){
+                                    a2Threshold2ToESP = "0$a2Threshold2"
+                                }
+
+                                if (a4Threshold1?.length == 1){
+                                    a4Threshold1ToESP = "0$a4Threshold1"
+                                }
+
+                                if (a4Threshold2?.length == 1){
+                                    a4Threshold2ToESP = "0$a4Threshold2"
+                                }
+
+                                sendToESP("START$a2Threshold1ToESP$a2Threshold2ToESP$a4Threshold1ToESP$a4Threshold2ToESP ")
                             }
 
                             startCalibrationSequence.join()
@@ -282,10 +317,6 @@ class MainActivity : AppCompatActivity() {
                                 resetTimer()
                                 startStopButton.text = "Stop"
 
-                                // Send signal to ESP to begin data send process.
-//                            sendToESP("START")
-                                sendToESP("START")
-                                lastUnixTimeSinceStart = System.currentTimeMillis()
                             }
 
                             endCalibrationSequence.join()
@@ -379,6 +410,11 @@ class MainActivity : AppCompatActivity() {
 //            editor.apply()
 //        }
 
+        val dummy = WorkoutData(-1,1,1,1,0)
+        lifecycleScope.launch() {
+            db.dao.upsertTuple(dummy)
+        }
+
     }
 
     override fun onDestroy() {
@@ -418,12 +454,13 @@ class MainActivity : AppCompatActivity() {
     private fun sendToESP(item: String) {
         try {
             outputStream?.write(item.toByteArray())
+            //Log.i("Bluetooth", "$A2threshold11")
         } catch (e: Exception) {
             return // maybe deal with error eventually. but for now, don't do anything
         }
     }
 
-    private fun dataReceiver(sharedPref: SharedPreferences, context: Context) {
+    private fun dataReceiver(context: Context) {
         lifecycleScope.launch() {
             withContext(Dispatchers.IO) {
                 isDatabaseSync = true
@@ -538,10 +575,10 @@ class MainActivity : AppCompatActivity() {
 
     fun setChartData(lineChart: LineChart, finger: Int, workoutID: Int?) {
 
-        val sharedPrefs = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
+        //val sharedPrefs = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
         var lastSession: Int
         if (workoutID == null) {
-            lastSession = sharedPrefs.getInt("nextSession", 0)
+            lastSession = sharedPref.getInt("nextSession", 0)
             if (lastSession != 0) {
                 lastSession -= 1
             } else {
