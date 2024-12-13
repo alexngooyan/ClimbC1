@@ -13,6 +13,7 @@ import android.graphics.Typeface
 import android.icu.util.Calendar
 import android.media.RouteListingPreference
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
@@ -77,6 +78,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var timerDisplayText: TextView
     lateinit var sessionNumberText: TextView
     lateinit var dateDisplayText: TextView
+    lateinit var sharedPref: SharedPreferences
 
     var clockRunning = false
     var timeElapsed = 0
@@ -167,7 +169,7 @@ class MainActivity : AppCompatActivity() {
         startStopButton.setTextColor(black1)
         dateDisplayText.text = dateString
 
-        val sharedPref = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
+        sharedPref = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
         dummyWorkoutID = sharedPref.getInt("nextSession", 0)
 
         sessionNumberText.text = "Session $dummyWorkoutID"
@@ -195,7 +197,7 @@ class MainActivity : AppCompatActivity() {
                         //Stop ESP control
                         sendToESP("STOP")
 
-                        dataReceiver(sharedPref, this)
+                        dataReceiver(this)
 
                     } else { //start timer and startup sequence
                         resetTimer()
@@ -282,7 +284,14 @@ class MainActivity : AppCompatActivity() {
 
                                 // Send signal to ESP to begin data send process.
 //                            sendToESP("START")
-                                sendToESP("START")
+
+                                // Retrieve the stored hint values and set them if they exist
+                                val a2Threshold1 = sharedPref.getString("a2Threshold1", "--")
+                                val a2Threshold2 = sharedPref.getString("a2Threshold2", "--")
+                                val a4Threshold1 = sharedPref.getString("a4Threshold1", "--")
+                                val a4Threshold2 = sharedPref.getString("a4Threshold2", "--")
+
+                                sendToESP("START, $a2Threshold1, $a2Threshold2, $a4Threshold1, $a4Threshold2")
                                 lastUnixTimeSinceStart = System.currentTimeMillis()
                             }
 
@@ -354,6 +363,11 @@ class MainActivity : AppCompatActivity() {
 //            editor.apply()
 //        }
 
+        val dummy = WorkoutData(-1,1,1,1,0)
+        lifecycleScope.launch() {
+            db.dao.upsertTuple(dummy)
+        }
+
     }
 
     override fun onDestroy() {
@@ -393,12 +407,13 @@ class MainActivity : AppCompatActivity() {
     private fun sendToESP(item: String) {
         try {
             outputStream?.write(item.toByteArray())
+            //Log.i("Bluetooth", "$A2threshold11")
         } catch (e: Exception) {
             return // maybe deal with error eventually. but for now, don't do anything
         }
     }
 
-    private fun dataReceiver(sharedPref: SharedPreferences, context: Context) {
+    private fun dataReceiver(context: Context) {
         lifecycleScope.launch() {
             withContext(Dispatchers.IO) {
                 isDatabaseSync = true
@@ -513,10 +528,10 @@ class MainActivity : AppCompatActivity() {
 
     fun setChartData(lineChart: LineChart, finger: Int, workoutID: Int?) {
 
-        val sharedPrefs = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
+        //val sharedPrefs = getSharedPreferences("ThresholdPreferences", Context.MODE_PRIVATE)
         var lastSession: Int
         if (workoutID == null) {
-            lastSession = sharedPrefs.getInt("nextSession", 0)
+            lastSession = sharedPref.getInt("nextSession", 0)
             if (lastSession != 0) {
                 lastSession -= 1
             } else {
