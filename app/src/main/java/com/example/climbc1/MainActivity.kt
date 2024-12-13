@@ -410,11 +410,6 @@ class MainActivity : AppCompatActivity() {
 //            editor.apply()
 //        }
 
-        val dummy = WorkoutData(-1,1,1,1,0)
-        lifecycleScope.launch() {
-            db.dao.upsertTuple(dummy)
-        }
-
     }
 
     override fun onDestroy() {
@@ -534,14 +529,15 @@ class MainActivity : AppCompatActivity() {
 
                     var maxA2 = 0
                     var maxA4 = 0
-
                     //get around int? type mismatch (bruh)
-                    if ((maxF3A2 != null && maxF3A2.toInt() >= 0) && (maxF4A2 != null && maxF4A2.toInt() >= 0)) {
+                    if ((maxF3A2 != null) && (maxF4A2 != null)) {
                         maxA2 = max(maxF3A2, maxF4A2)
+                        maxA2 = max(maxA2, 0)
                     }
 
-                    if ((maxF3A4 != null && maxF3A4.toInt() >= 0) && (maxF4A4 != null && maxF4A4.toInt() >= 0)) {
+                    if ((maxF3A4 != null) && (maxF4A4 != null)) {
                         maxA4 = max(maxF3A4, maxF4A4)
+                        maxA4 = max(maxA4, 0)
                     }
 
                     val editor = sharedPref.edit()
@@ -614,6 +610,7 @@ class MainActivity : AppCompatActivity() {
                 setCircleColor(getColor(R.color.teal_700))
                 setDrawCircleHole(false)
                 setDrawValues(false)
+                setDrawCircles(false)
             }
 
             // Add dataset to the chart

@@ -88,6 +88,19 @@ class HomeFragment : Fragment() {
         binding.A2MaxText.text = maxA2ToDisplay.toString()
         binding.A4MaxText.text = maxA4ToDisplay.toString()
 
+//        if (maxA2ToDisplay >= a2ThresholdDisplayed) {
+//            binding.A2MaxText.setTextColor(0x00FF00)
+//        } else {
+//            binding.A2MaxText.setTextColor(0xFF0000)
+//        }
+//
+//
+//        if (maxA4ToDisplay >= a4ThresholdDisplayed) {
+//            binding.A4MaxText.setTextColor(0x00FF00)
+//        } else {
+//            binding.A4MaxText.setTextColor(0xFF0000)
+//        }
+
 
         /*former code to change text on home to "fuck rectangles"
         val textView: TextView = binding.textHome

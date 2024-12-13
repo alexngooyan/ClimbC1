@@ -198,7 +198,8 @@ class DashboardFragment : Fragment() {
                 val time = db.dao.getMaxTimeFromWorkoutID(i)
 
                 val timeTextView = TextView(requireContext()).apply {
-                    text = time.toString()
+                    val timeAsDouble: Double = time.toDouble() / 10
+                    text = timeAsDouble.toString()
                     typeface = jetBrainsFont
                     textSize = 25f
                     gravity = Gravity.CENTER

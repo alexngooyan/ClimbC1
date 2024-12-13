@@ -26,7 +26,7 @@ interface WorkoutDataDao {
     suspend fun getWorkoutSessions(): List<Int>
 
     @Query("SELECT MAX(time) FROM WorkoutData WHERE workoutID = :workoutID")
-    suspend fun getMaxTimeFromWorkoutID(workoutID: Int): List<Long>
+    suspend fun getMaxTimeFromWorkoutID(workoutID: Int): Long
 
     @Query("SELECT * FROM WorkoutData ORDER BY time")
     suspend fun getAllData(): List<WorkoutData>
